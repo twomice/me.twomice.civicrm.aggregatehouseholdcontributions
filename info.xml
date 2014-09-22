@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<extension key="me.twomice.civicrm.aggregatehouseholdcontributions" type="module">
+  <file>aggregatehouseholdcontributions</file>
+  <name>Aggregated houshold contributions</name>
+  <description>Provides a report template for analyzing contributions aggregated at the household level.</description>
+  <license>GPL-3.0</license>
+  <maintainer>
+    <author>Allen Shaw</author>
+    <email>allen@twomice.me</email>
+  </maintainer>
+  <releaseDate>2014-09-18</releaseDate>
+  <version>0.1</version>
+  <develStage>alpha</develStage>
+  <compatibility>
+    <ver>4.4</ver>
+  </compatibility>
+  <comments>Plugin development sponsored by Emphanos, LLC. http://emphanos.com</comments>
+  <civix>
+    <namespace>CRM/Aggregatehouseholdcontributions</namespace>
+  </civix>
+</extension>
