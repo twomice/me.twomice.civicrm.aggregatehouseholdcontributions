@@ -9,7 +9,8 @@
     <email>allen@twomice.me</email>
   </maintainer>
   <releaseDate>2014-09-18</releaseDate>
-  <version>1.0</version>
+  <version>1.1</version>
+  <develStage>stable</develStage>
   <urls>
     <url desc="Plugin development sponsor">http://emphanos.com</url>
   </urls>
