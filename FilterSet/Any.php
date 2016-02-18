@@ -5,7 +5,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Any extends m
 
   function __construct() {
     $this->_name = 'any';
-    $this->_requires_join = FALSE;
     parent::__construct();
   }
 
@@ -13,5 +12,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Any extends m
     return;
   }
 
-
+  function _adjustPseudofield($filters) {
+    foreach ($filters as &$filter){
+      if (array_key_exists('_force_pseudofield', $filter) && $filter['_force_pseudofield']) {
+        $filter['pseudofield'] = TRUE;
+      }
+      else {
+        $filter['pseudofield'] = FALSE;
+      }
+    }
+    return $filters;
+  }
+  
 }

@@ -151,12 +151,12 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       ),
     );
 
-    foreach ($this->_filterSetNames as $filterset_name) {
+    foreach ($this->_filterSetNames as $filter_set_name) {
 //      dsm($filter_set_name . ' ============================================');
 //      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters START for '. $filter_set_name);
-      $filters = $this->_getFilterSetFields($filterset_name);
+      $filter_set = $this->_getFilterSet($filter_set_name);
+      $filters = $filter_set->_getFields(TRUE);
 //      dsm($filters , "filters for $filterset_name");
-      $filters = $this->_adjustFilterSetPseudofield($filters, TRUE, $filterset_name);
       $this->_columns[$this->_tablename]['filters'] = array_merge($this->_columns[$this->_tablename]['filters'], $filters);
 //      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters END for '. $filter_set_name);
     }
@@ -436,8 +436,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     }
     // Re-build filterset fields for this filterset.
 
-    $filters = $this->_getFilterSetFields($filter_set_name);
-    $filter_set_fields = $this->_adjustFilterSetPseudofield($filters, FALSE, $filterset_name);
+    $filter_set_fields = $filter_set->_getFields(FALSE);
 
     // Get scope for this filter from params, or default to CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE.
     $selected_scope = $this->_params[$filter_set_name . '_contribution_scope_value'] ?: CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE;
@@ -601,15 +600,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     return $filters;
   }
 
-//  function _getFilterSetFields($filter_set_name, $is_constructor = TRUE, $is_columns = FALSE) {
-  function _getFilterSetFields($filter_set_name) {
-
-    $filterSet = $this->_getFilterSet($filter_set_name);
-    $fields = $filterSet->_filter_criteria_fields;
-    $fields = array_merge($fields, $filterSet->_column_criteria_fields);
-    return $fields;
-  }
-
   function _debug_temp_table($table_name) {
 
     if ($this->_debug) {
@@ -689,8 +679,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       foreach ($this->_columns as $columns_table_name => &$components) {
         unset($components['filters']);
       }
-      $filter_set_fields = $this->_getFilterSetFields($filter_set_name);
-      $filter_set_fields = $this->_adjustFilterSetPseudofield($filter_set_fields, FALSE, $filterset_name);
+      $filter_set_fields = $filter_set->_getFields(FALSE);
 
       $method = $filter_set->_column_settings['method'];
 

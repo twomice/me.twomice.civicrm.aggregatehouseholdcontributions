@@ -131,4 +131,27 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
       $this->_column_criteria_fields[$new_key] = $field;
     }
   }
+
+  function _buildFilterTables($object) {
+    return;
+  }
+
+  function _getFields($is_constructor) {
+    $fields = $this->_filter_criteria_fields;
+    $fields = array_merge($fields, $this->_column_criteria_fields);
+    return $this->_adjustPseudofield($fields, $is_constructor);
+  }
+
+  function _adjustPseudofield($filters, $is_constructor) {
+    foreach ($filters as &$filter){
+      if (array_key_exists('_force_pseudofield', $filter) && $filter['_force_pseudofield']) {
+        $filter['pseudofield'] = TRUE;
+      }
+      else {
+        $filter['pseudofield'] = (bool)$is_constructor;
+      }
+    }
+    return $filters;
+  }
+
 }
