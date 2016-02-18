@@ -9,203 +9,16 @@ define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING', 2);
 define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE', 1);
 define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED', 2);
 
-class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form {  
+class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form {
   var $_debug = TRUE;
   var $_tablename = 'tmp_aggregated_household_contributions';
   var $_temp_table_prefix = "civireport_tmp_";
-
-  /**
-   * Array of properties for filtersets.
-   * A filterset is a collection of filter options for a specific facet of
-   * contributions. For example, the 'total' filterset provides filter options
-   * for the total contribution amount attributed to an aggregated household.
-   * These filter options are provided in the report under the "Set Filters"
-   * section of the Report Criteria, and each one is hidden with a selectable
-   * check-box which enables or disables (and thereby displays or hides) the
-   * filter options. For example, the 'total' filterset provides options to
-   * limit the report to aggregated households whose total contributions meet
-   * specific criteria, and it provides fields to define these criteria, with
-   * a selectable check-box labeled 'Apply "Total Contribution" filter'.
-   *
-   * Some filtersets also provide a display column which reflects an aggregate
-   * value. For example, the 'total' filterset, besides providing filter options
-   * for the aggregated household's total contribution amount, also provides a
-   * display column to display the total amount of contribution meeting certain
-   * criteria, with option fields to specify those criteria. When this display
-   * column is selected, the report provides those option fields under a section
-   * of report criteria labeled 'Determine Aggregate Column Values'.
-   *
-   * Some filtersets also provide a "scope" option to help clarify the meaning
-   * of various filter criteria related to that filterset.  For example, the
-   * 'first' filterset includes options for contribution date, contribution
-   * amount, and contribution type, among others. The "scope" option allows
-   * the user to limit the report to one of these choices: a) aggregated
-   * households in which the first contribution ever meets all these criteria,
-   * b) aggregated households in which the first contribution /within the given
-   * date range/ meets all the other criteria, or c) aggregated households in
-   * which the first contribution /within the given amount range/ meets all the
-   * other criteria. These scope options are provided as criteria fields in the
-   * report under the corresponding filterset criteria. For example, the scope
-   * option for the 'first' filterset, is provided with the 'Apply "First
-   * Contribution" filter' options, by a field labeled '"First Contribution"
-   * filter scope'.
-   *
-   * This array defines the properties required to process all of these criteria.
-   * It is an array of filtersets. Each filterset has a key corresponding to the
-   * name of the filterset. The corresponding array value is an associative array
-   * that may contain the following key-value pairs:
-   *
-   *  'requires_join': Boolan. Whether or not this filterset requires another
-   *    table to be joined into the report query SQL.
-   *  'column_settings': An associative array of properties defining the
-   *    information required to process the criteria for the associated display
-   *    column. See 'column_settings', below.
-   *  'scope_settings: An associative array of properties defining the
-   *    information required to process the criteria for the associated "scope"
-   *    option. See 'scope_settings', below.
-   *
-   * The top-level 'column_settings' value is itself an associative array that
-   * may contain the following key-value pairs:
-   *
-   *  'qualifier_expression': FIXME: document this.
-   *  'method': FIXME: document this.
-   *
-   * The top-level 'scope_settings' value is itself an associative array that
-   * may contain the following key-value pairs:
-   *
-   *  'has_scope_options': FIXME: document this.
-   *  'qualifier_expression': FIXME: document this.
-   *  'qualifier_filter': FIXME: document this.
-   *  'qualifier_join': FIXME: document this.
-   *  'scopes': An associative array defining what options are to be provided
-   *    in the corresponding "scope" criteria field. Each option has a key
-   *    corresponding to the desired CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_*
-   *    constant. The corresponding array value is an associative array that may
-   *    contain the  following key-value pairs:
-   *      'method': FIXME: document this.
-   *      'table_1_where_filters': FIXME: document this.
-   *      'table_2_where_filters': FIXME: document this.
-   *
-   * @var Array
-   */
-  var $_filterSets = array(
-    'total' => array (
-//      'name' => 'total',
-      'requires_join' => TRUE,
-      'column_settings' => array(
-        'qualifier_expression' => 'sum(t.total_amount)',
-        'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE,
-      ),
-      'scope_settings' => array (
-        'has_scope_option' => FALSE,
-        'qualifier_expression' => 'sum(t.total_amount)',
-        'qualifier_filter' => 'total_contribution_total',
-        'scopes' => array(
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
-          ),
-        ),
-      ),
-    ),
-    'any' => array (
-//      'name' => 'any',
-      'requires_join' => FALSE,
-    ),
-    'first' => array (
-//      'name' => 'first',
-      'requires_join' => TRUE,
-      'column_settings' => array(
-        'qualifier_expression' => 'min(t.receive_date)',
-        'qualifier_join' => 'receive_date',
-        'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
-      ),
-      'scope_settings' => array (
-        'has_scope_option' => TRUE,
-        'qualifier_expression' => 'min(t.receive_date)',
-        'qualifier_filter' => 'first_contribution_date',
-        'qualifier_join' => 'receive_date',
-        'scopes' => array(
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-            'table_1_where_filters' => 'NONE',
-            'table_2_where_filters' => 'ALL',
-          ),
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
-          ),
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-            'table_1_where_filters' => 'ALLEXCEPT',
-            'table_2_where_filters' => array(
-              'first_contribution_amount',
-            ),
-          ),
-        ),
-      ),
-    ),
-    'last' => array (
-//      'name' => 'last',
-      'requires_join' => TRUE,
-      'column_settings' => array(
-        'qualifier_expression' => 'max(t.receive_date)',
-        'qualifier_join' => 'receive_date',
-        'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
-      ),
-      'scope_settings' => array (
-        'has_scope_option' => TRUE,
-        'qualifier_expression' => 'max(t.receive_date)',
-        'qualifier_filter' => 'last_contribution_date',
-        'qualifier_join' => 'receive_date',
-        'scopes' => array(
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-            'table_1_where_filters' => 'NONE',
-            'table_2_where_filters' => 'ALL',
-          ),
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
-          ),
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-            'table_1_where_filters' => 'ALLEXCEPT',
-            'table_2_where_filters' => array(
-              'last_contribution_amount',
-            ),
-          ),
-        ),
-      ),
-    ),
-    'largest' => array (
-//      'name' => 'largest',
-      'requires_join' => TRUE,
-      'column_settings' => array(
-        'qualifier_expression' => 'max(t.total_amount)',
-        'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE,
-      ),
-      'scope_settings' => array (
-        'has_scope_option' => TRUE,
-        'qualifier_expression' => 'max(t.total_amount)',
-        'qualifier_filter' => 'largest_contribution_amount',
-        'qualifier_join' => 'total_amount',
-        'scopes' => array(
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-            'table_1_where_filters' => 'NONE',
-            'table_2_where_filters' => 'ALL',
-          ),
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-            'table_1_where_filters' => 'ALLEXCEPT',
-            'table_2_where_filters' => array(
-              'largest_contribution_date',
-            ),
-          ),
-          CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => array(
-            'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
-          ),
-        ),
-      ),
-    ),
+  var $_filterSetNames = array(
+    'total',
+    'any',
+    'first',
+    'last',
+    'largest',
   );
 
   /**
@@ -338,15 +151,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       ),
     );
 
-    foreach ($this->_filterSets as $filter_set_name => $filter_set) {
+    foreach ($this->_filterSetNames as $filterset_name) {
 //      dsm($filter_set_name . ' ============================================');
 //      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters START for '. $filter_set_name);
-      $filters = $this->_getFilterSetFields($filter_set_name);
+      $filters = $this->_getFilterSetFields($filterset_name);
+//      dsm($filters , "filters for $filterset_name");
       $filters = $this->_adjustFilterSetPseudofield($filters, TRUE, $filterset_name);
       $this->_columns[$this->_tablename]['filters'] = array_merge($this->_columns[$this->_tablename]['filters'], $filters);
 //      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters END for '. $filter_set_name);
     }
-//    dsm(var_export($this->_columns[$this->_tablename], 1), '_columns for tablename');
+//    dsm($this->_columns[$this->_tablename], '_columns for tablename');
 
     $this->_groupFilter = TRUE;
     $this->_tagFilter = TRUE;
@@ -518,7 +332,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     // For each filterset, clear default filter params if the filter itself is
     // not used.
-    foreach ($this->_filterSets as $filter_set_name => $filter_set) {
+    foreach ($this->_filterSetNames as $filter_set_name) {
       if (!$this->_params["is_filter_{$filter_set_name}"]) {
         // Clear default filter params if the filter itself is not used.
         $filterset_prefix = "{$filter_set_name}_contribution_";
@@ -547,7 +361,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
 
     // Build any additional tables that may be required by enabled filter sets.
-    foreach($this->_filterSets as $filter_set_name => $filter_set) {
+    foreach($this->_filterSetNames as $filter_set_name) {
       if ($this->_params["is_filter_{$filter_set_name}"]) {
         // If this filterset is enabled, build tables required by this filterset.
         $this->_buildFilterSetTempTable($filter_set_name);
@@ -599,11 +413,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    */
   function _buildFilterSetTempTable($filter_set_name) {
 
-    $filter_set = $this->_filterSets[$filter_set_name];
+    $filter_set = $this->_getFilterSet($filter_set_name);
 
     // If filter set doesn't require a separate joined table, we have nothing
     // to do here. Just return.
-    if (!$filter_set['requires_join']) {
+    if (!$filter_set->_requires_join) {
       return;
     }
 
@@ -630,11 +444,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     // Each scope has a method (see CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP
     // and CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING).
-    $method = $filter_set['scope_settings']['scopes'][$scope]['method'];
+    $method = $filter_set->_scope['scopes'][$scope]['method'];
 
     // Define a table name for the temporary to be built for this filterset,
     // and delete or make temporary the table, depending on $this->-debug setting.
-    $table_name = $this->_temp_table_prefix . $filter_set_name;    
+    $table_name = $this->_temp_table_prefix . $filter_set_name;
     $temporary = $this->_debug_temp_table($table_name);
 
     $qualifier_column_name = "qualifier_{$filter_set_name}";
@@ -645,8 +459,8 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
       $this->_columns[$this->_tablename]['filters'] = array();
 
-      $table_1_where_filters = $filter_set['scope_settings']['scopes'][$scope]['table_1_where_filters'];
-      $table_2_where_filters = $filter_set['scope_settings']['scopes'][$scope]['table_2_where_filters'];
+      $table_1_where_filters = $filter_set->_scope['scopes'][$scope]['table_1_where_filters'];
+      $table_2_where_filters = $filter_set->_scope['scopes'][$scope]['table_2_where_filters'];
 
       if (is_array($table_1_where_filters)) {
         foreach ($table_1_where_filters as $field_name) {
@@ -680,7 +494,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       $query = "
         CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`$qualifier_column_name`))
           SELECT
-            t.aggid, {$filter_set['scope_settings']['qualifier_expression']} as $qualifier_column_name
+            t.aggid, {$filter_set->_scope['qualifier_expression']} as $qualifier_column_name
           FROM
             tmp_aggregated_household_contributions t
             {$this->_where}
@@ -727,7 +541,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
             t.aggid, fc.{$qualifier_column_name}
           FROM
             tmp_aggregated_household_contributions t
-            INNER JOIN {$table_name_pre} fc ON fc.aggid = t.aggid AND fc.$qualifier_column_name = t.{$filter_set['scope_settings']['qualifier_join']}
+            INNER JOIN {$table_name_pre} fc ON fc.aggid = t.aggid AND fc.$qualifier_column_name = t.{$filter_set->_scope['qualifier_join']}
             {$this->_where}
       ;
       ";
@@ -739,16 +553,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       $this->_columns[$this->_tablename]['filters'] = array();
 
       // Otherwise, if the method is HAVING, create one temp table, along these lines:
-      $filter_set_fields[$filter_set['scope_settings']['qualifier_filter']]['having'] = TRUE;
-      $filter_set_fields[$filter_set['scope_settings']['qualifier_filter']]['dbAlias'] = $qualifier_column_name;
+      $filter_set_fields[$filter_set->_scope['qualifier_filter']]['having'] = TRUE;
+      $filter_set_fields[$filter_set->_scope['qualifier_filter']]['dbAlias'] = $qualifier_column_name;
 
       $this->_columns[$this->_tablename]['filters'] = $filter_set_fields;
-dsm($this->_columns);
+      dsm($this->_columns);
       $this->_filterWhere();
       $query =   "
         CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
         SELECT
-          {$filter_set['scope_settings']['qualifier_expression']} as $qualifier_column_name, t.aggid
+          {$filter_set->_scope['qualifier_expression']} as $qualifier_column_name, t.aggid
         FROM
           tmp_aggregated_household_contributions t
         {$this->_where}
@@ -790,9 +604,7 @@ dsm($this->_columns);
 //  function _getFilterSetFields($filter_set_name, $is_constructor = TRUE, $is_columns = FALSE) {
   function _getFilterSetFields($filter_set_name) {
 
-    $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
-    $filterSet = new $filter_set_class_name;
-
+    $filterSet = $this->_getFilterSet($filter_set_name);
     $fields = $filterSet->_filter_criteria_fields;
     $fields = array_merge($fields, $filterSet->_column_criteria_fields);
     return $fields;
@@ -821,7 +633,7 @@ dsm($this->_columns);
 
   function _buildColumnTempTable($filter_set_name) {
     $column_filter_param_name = "{$filter_set_name}_contribution_column_filter";
-    $filter_set = $this->_filterSets[$filter_set_name];
+    $filter_set = $this->_getFilterSet($filter_set_name);
     $field_name = "{$filter_set_name}_contribution";
     $field = $this->_columns[$this->_tablename]['fields'][$field_name];
 
@@ -880,7 +692,7 @@ dsm($this->_columns);
       $filter_set_fields = $this->_getFilterSetFields($filter_set_name);
       $filter_set_fields = $this->_adjustFilterSetPseudofield($filter_set_fields, FALSE, $filterset_name);
 
-      $method = $filter_set['column_settings']['method'];
+      $method = $filter_set->_column_settings['method'];
 
       $qualifier_column_name = "column_{$filter_set_name}";
 
@@ -898,7 +710,7 @@ dsm($this->_columns);
         $query = "
           CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`$qualifier_column_name`))
           SELECT
-            t.aggid, {$filter_set['column_settings']['qualifier_expression']} as $qualifier_column_name
+            t.aggid, {$filter_set->_column_settings['qualifier_expression']} as $qualifier_column_name
           FROM
             tmp_aggregated_household_contributions t
           {$this->_where}
@@ -914,7 +726,7 @@ dsm($this->_columns);
             t.aggid, t.total_amount as {$field_name}
           FROM
             tmp_aggregated_household_contributions t
-            INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.{$filter_set['column_settings']['qualifier_join']}
+            INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.{$filter_set->_column_settings['qualifier_join']}
           {$this->_where}
           ;
         ";
@@ -925,7 +737,7 @@ dsm($this->_columns);
         $query =   "
           CREATE $temporary TABLE $table_name (INDEX (  `aggid` ))
           SELECT
-            t.aggid, {$filter_set['column_settings']['qualifier_expression']} as {$field_name}
+            t.aggid, {$filter_set->_column_settings['qualifier_expression']} as {$field_name}
           FROM
             tmp_aggregated_household_contributions t
             {$this->_where}
@@ -1081,4 +893,13 @@ dsm($this->_columns);
       require_once ($path . $file);
     }
   }
+
+  function _getFilterSet($filter_set_name) {
+    if (!array_key_exists($filter_set_name, $this->_filterSets)) {
+      $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
+      $this->_filterSets[$filter_set_name] = new $filter_set_class_name;
+    }
+    return $this->_filterSets[$filter_set_name];
+  }
+
 }

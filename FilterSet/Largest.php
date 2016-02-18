@@ -6,6 +6,33 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Largest exten
   function __construct() {
     $this->_name = 'largest';
     $this->_requires_join = TRUE;
+    $this->_column_settings = array(
+      'qualifier_expression' => 'max(t.total_amount)',
+      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE,
+    );
+    $this->_scope = array (
+      'has_scope_option' => TRUE,
+      'qualifier_expression' => 'max(t.total_amount)',
+      'qualifier_filter' => 'largest_contribution_amount',
+      'qualifier_join' => 'total_amount',
+      'scopes' => array(
+        CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => array(
+          'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
+          'table_1_where_filters' => 'NONE',
+          'table_2_where_filters' => 'ALL',
+        ),
+        CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => array(
+          'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
+          'table_1_where_filters' => 'ALLEXCEPT',
+          'table_2_where_filters' => array(
+            'largest_contribution_date',
+          ),
+        ),
+        CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => array(
+          'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
+        ),
+      ),
+    );
     parent::__construct();
   }
 

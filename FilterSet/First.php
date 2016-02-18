@@ -28,6 +28,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
         ),
       ),
     );
+    $this->_column_settings = array(
+      'qualifier_expression' => 'min(t.receive_date)',
+      'qualifier_join' => 'receive_date',
+      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
+    );
     parent::__construct();
   }
   

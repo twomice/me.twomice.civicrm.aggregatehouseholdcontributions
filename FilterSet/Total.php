@@ -6,6 +6,21 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
   function __construct() {
     $this->_name = 'total';
     $this->_requires_join = TRUE;
+    $this->_scope = array (
+      'has_scope_option' => FALSE,
+      'qualifier_expression' => 'sum(t.total_amount)',
+      'qualifier_filter' => 'total_contribution_total',
+      'scopes' => array(
+        CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE => array(
+          'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
+        ),
+      ),
+    );
+    $this->_column_settings = array(
+      'qualifier_expression' => 'sum(t.total_amount)',
+      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE,
+    );
+
     parent::__construct();
   }
   function _buildFilterCriteriaFields() {
