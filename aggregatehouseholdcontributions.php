@@ -440,11 +440,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     $filter_set_fields = $this->_adjustFilterSetPseudofield($filters, FALSE, $filterset_name);
 
     // Get scope for this filter from params, or default to CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE.
-    $scope = $this->_params[$filter_set_name . '_contribution_scope_value'] ?: CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE;
+    $selected_scope = $this->_params[$filter_set_name . '_contribution_scope_value'] ?: CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE;
 
     // Each scope has a method (see CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP
     // and CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING).
-    $method = $filter_set->_scope['scopes'][$scope]['method'];
+    $method = $filter_set->_scope['scopes'][$selected_scope]['method'];
 
     // Define a table name for the temporary to be built for this filterset,
     // and delete or make temporary the table, depending on $this->-debug setting.
@@ -454,22 +454,22 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     $qualifier_column_name = "qualifier_{$filter_set_name}";
 
     if ($method == CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP) {
-      $table_name_pre = "civireport_tmp_{$filter_set_name}_pre";
+      $table_name_pre = $this->_temp_table_prefix . "scope_{$filter_set_name}_pre";
       $temporary = $this->_debug_temp_table($table_name_pre);
 
       $this->_columns[$this->_tablename]['filters'] = array();
 
-      $table_1_where_filters = $filter_set->_scope['scopes'][$scope]['table_1_where_filters'];
-      $table_2_where_filters = $filter_set->_scope['scopes'][$scope]['table_2_where_filters'];
+      $supporting_table_filter_fields = $filter_set->_scope['scopes'][$selected_scope]['supporting_table_filter_fields'];
+      $primary_table_filter_fields = $filter_set->_scope['scopes'][$selected_scope]['primary_table_filter_fields'];
 
-      if (is_array($table_1_where_filters)) {
-        foreach ($table_1_where_filters as $field_name) {
+      if (is_array($supporting_table_filter_fields)) {
+        foreach ($supporting_table_filter_fields as $field_name) {
           $field = $filter_set_fields[$field_name];
           $field['pseudofield'] = FALSE;
           $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
         }
       }
-      elseif ($table_1_where_filters == 'ALL') {
+      elseif ($supporting_table_filter_fields == 'ALL') {
         foreach ($filter_set_fields as $field_name => $field) {
           if ($field_name != $filter_set_name . '_contribution_scope') {
             $field['pseudofield'] = FALSE;
@@ -477,12 +477,12 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           }
         }
       }
-      elseif ($table_1_where_filters == 'ALLEXCEPT') {
+      elseif ($supporting_table_filter_fields == 'ALLEXCEPT') {
         foreach ($filter_set_fields as $field_name => $field) {
           if (
             $field_name != $filter_set_name . '_contribution_scope'
-            && is_array($table_2_where_filters)
-            && !in_array($field_name, $table_2_where_filters)
+            && is_array($primary_table_filter_fields)
+            && !in_array($field_name, $primary_table_filter_fields)
           ) {
             $field['pseudofield'] = FALSE;
             $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
@@ -496,7 +496,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT
             t.aggid, {$filter_set->_scope['qualifier_expression']} as $qualifier_column_name
           FROM
-            tmp_aggregated_household_contributions t
+            $this->_tablename t
             {$this->_where}
             group by aggid
         ;
@@ -507,14 +507,14 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 //      and create a temp table along these lines:
       $this->_columns[$this->_tablename]['filters'] = array();
 
-      if (is_array($table_2_where_filters)) {
-        foreach ($table_2_where_filters as $field_name) {
+      if (is_array($primary_table_filter_fields)) {
+        foreach ($primary_table_filter_fields as $field_name) {
           $field = $filter_set_fields[$field_name];
           $field['pseudofield'] = FALSE;
           $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
         }
       }
-      elseif ($table_2_where_filters == 'ALL') {
+      elseif ($primary_table_filter_fields == 'ALL') {
         foreach ($filter_set_fields as $field_name => $field) {
           if ($field_name != $filter_set_name . '_contribution_scope') {
             $field['pseudofield'] = FALSE;
@@ -522,12 +522,12 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           }
         }
       }
-      elseif ($table_2_where_filters == 'ALLEXCEPT') {
+      elseif ($primary_table_filter_fields == 'ALLEXCEPT') {
         foreach ($filter_set_fields as $field_name => $field) {
           if (
             $field_name != $filter_set_name . '_contribution_scope'
-            && is_array($table_1_where_filters)
-            && !in_array($field_name, $table_1_where_filters)
+            && is_array($supporting_table_filter_fields)
+            && !in_array($field_name, $supporting_table_filter_fields)
           ) {
             $field['pseudofield'] = FALSE;
             $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
@@ -540,7 +540,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         SELECT
             t.aggid, fc.{$qualifier_column_name}
           FROM
-            tmp_aggregated_household_contributions t
+            $this->_tablename t
             INNER JOIN {$table_name_pre} fc ON fc.aggid = t.aggid AND fc.$qualifier_column_name = t.{$filter_set->_scope['qualifier_join']}
             {$this->_where}
       ;
@@ -564,7 +564,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         SELECT
           {$filter_set->_scope['qualifier_expression']} as $qualifier_column_name, t.aggid
         FROM
-          tmp_aggregated_household_contributions t
+          $this->_tablename t
         {$this->_where}
         group by aggid
         {$this->_having}
@@ -712,7 +712,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT
             t.aggid, {$filter_set->_column_settings['qualifier_expression']} as $qualifier_column_name
           FROM
-            tmp_aggregated_household_contributions t
+            $this->_tablename t
           {$this->_where}
             group by aggid
           ;
@@ -725,7 +725,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT
             t.aggid, t.total_amount as {$field_name}
           FROM
-            tmp_aggregated_household_contributions t
+            $this->_tablename t
             INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.{$filter_set->_column_settings['qualifier_join']}
           {$this->_where}
           ;
@@ -739,7 +739,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT
             t.aggid, {$filter_set->_column_settings['qualifier_expression']} as {$field_name}
           FROM
-            tmp_aggregated_household_contributions t
+            $this->_tablename t
             {$this->_where}
             group by aggid
 

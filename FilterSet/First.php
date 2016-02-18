@@ -13,16 +13,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
       'scopes' => array(
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => array(
           'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-          'table_1_where_filters' => 'NONE',
-          'table_2_where_filters' => 'ALL',
+          'supporting_table_filter_fields' => '',
+          'primary_table_filter_fields' => 'ALL',
         ),
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => array(
           'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
         ),
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => array(
           'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-          'table_1_where_filters' => 'ALLEXCEPT',
-          'table_2_where_filters' => array(
+          'supporting_table_filter_fields' => 'ALLEXCEPT',
+          'primary_table_filter_fields' => array(
             'first_contribution_amount',
           ),
         ),
@@ -52,4 +52,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
       'pseudofield' => TRUE,
     );
   }
+
+  
 }

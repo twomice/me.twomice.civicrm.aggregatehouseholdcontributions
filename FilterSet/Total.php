@@ -7,7 +7,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
     $this->_name = 'total';
     $this->_requires_join = TRUE;
     $this->_scope = array (
-      'has_scope_option' => FALSE,
       'qualifier_expression' => 'sum(t.total_amount)',
       'qualifier_filter' => 'total_contribution_total',
       'scopes' => array(
