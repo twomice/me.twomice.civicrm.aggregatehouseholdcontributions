@@ -217,12 +217,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
   function __construct() {
     $this->_registerAutoloader();
-    dsm(spl_autoload_functions(), 'autoloaders');
-    dsm(get_include_path(), 'path');
 
-    $Total = new me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total();
-    dsm($Total->_columns, 'total columns');
-    
     $this->_columns = array(
       'civicrm_contact' => array(
         'dao' => 'CRM_Contact_DAO_Contact',
@@ -344,14 +339,14 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     );
 
     foreach ($this->_filterSets as $filter_set_name => $filter_set) {
-      dsm($filter_set_name . ' ============================================');
-      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters START for '. $filter_set_name);
-      $this->_columns[$this->_tablename]['filters'] = array_merge($this->_columns[$this->_tablename]['filters'], $this->_getFilterSetFields($filter_set_name, TRUE));
-      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters MIDDLE for '. $filter_set_name);
-      $this->_columns[$this->_tablename]['filters'] = array_merge($this->_columns[$this->_tablename]['filters'], $this->_getFilterSetFields($filter_set_name, TRUE, TRUE));
-      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters END for '. $filter_set_name);
+//      dsm($filter_set_name . ' ============================================');
+//      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters START for '. $filter_set_name);
+      $filters = $this->_getFilterSetFields($filter_set_name);
+      $filters = $this->_adjustFilterSetPseudofield($filters, TRUE, $filterset_name);
+      $this->_columns[$this->_tablename]['filters'] = array_merge($this->_columns[$this->_tablename]['filters'], $filters);
+//      dsm($this->_columns[$this->_tablename]['filters'], $this->_tablename . ' filters END for '. $filter_set_name);
     }
-    dsm(var_export($this->_columns[$this->_tablename], 1), '_columns for tablename');
+//    dsm(var_export($this->_columns[$this->_tablename], 1), '_columns for tablename');
 
     $this->_groupFilter = TRUE;
     $this->_tagFilter = TRUE;
@@ -626,7 +621,9 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       unset($components['filters']);
     }
     // Re-build filterset fields for this filterset.
-    $filter_set_fields = $this->_getFilterSetFields($filter_set_name, FALSE);
+
+    $filters = $this->_getFilterSetFields($filter_set_name);
+    $filter_set_fields = $this->_adjustFilterSetPseudofield($filters, FALSE, $filterset_name);
 
     // Get scope for this filter from params, or default to CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE.
     $scope = $this->_params[$filter_set_name . '_contribution_scope_value'] ?: CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE;
@@ -746,6 +743,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       $filter_set_fields[$filter_set['scope_settings']['qualifier_filter']]['dbAlias'] = $qualifier_column_name;
 
       $this->_columns[$this->_tablename]['filters'] = $filter_set_fields;
+dsm($this->_columns);
       $this->_filterWhere();
       $query =   "
         CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
@@ -771,137 +769,32 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     $this->_where = $this->_having = '';
   }
 
-  function _getFilterSetFields($filter_set_name, $is_constructor = TRUE, $is_columns = FALSE) {
-
-    $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
-    $filterSet = new $filter_set_class_name;
-
+  function _adjustFilterSetPseudofield($filters, $is_constructor, $filterset_name) {
     if ($filter_set_name == 'any') {
       $pseudofield = FALSE;
     }
     else {
       $pseudofield = (bool)$is_constructor;
     }
-
-    if (!$is_columns) {
-      $label_prefix = "$filter_set_name contribution: qualifying ";
-      $key_prefix = '';
-      $grouping = $filter_set_name . '-filters';
-    }
-    else {
-      if ($filter_set_name == 'any') {
-        return array();
+    foreach ($filters as &$filter){
+      if (array_key_exists('_force_pseudofield', $filter) && $filter['_force_pseudofield']) {
+        $filter['pseudofield'] = TRUE;
       }
-      $label_prefix = '';
-      $key_prefix = 'column_';
-      $grouping = 'column-filters';
-    }
-
-    $filter_set = $this->_filterSets[$filter_set_name];
-    /*
-    $fields = array(
-      $key_prefix . $filter_set_name . '_contribution_date' => array(
-        'name' => 'receive_date',
-        'dbAlias' => 'receive_date',
-        'title' => ts($label_prefix . 'date'),
-        'type' => CRM_Utils_Type::T_DATE,
-        'operatorType' => CRM_Report_Form::OP_DATE,
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-      $key_prefix . $filter_set_name . '_contribution_financial_type_id' => array(
-        'name' => 'financial_type_id',
-        'dbAlias' => 'financial_type_id',
-        'title' => ts($label_prefix . 'type'),
-        'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-        'type' => CRM_Utils_Type::T_INT,
-        'options'      => CRM_Contribute_PseudoConstant::financialType(),
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-      $key_prefix . $filter_set_name . '_contribution_page_id' => array(
-        'name' => 'contribution_page_id',
-        'dbAlias' => 'contribution_page_id',
-        'title' => ts($label_prefix . 'page'),
-        'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-        'type' => CRM_Utils_Type::T_INT,
-        'options'      => CRM_Contribute_PseudoConstant::contributionPage(),
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-      $key_prefix . $filter_set_name . '_contribution_status_id' => array(
-        'name' => 'contribution_status_id',
-        'dbAlias' => 'contribution_status_id',
-        'title' => ts($label_prefix . 'status'),
-        'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-        'type' => CRM_Utils_Type::T_INT,
-        'options'      => CRM_Contribute_PseudoConstant::contributionStatus(),
-        'default' => '1',
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-      $key_prefix . $filter_set_name . '_contribution_campaign_id' => array(
-        'name' => 'campaign_id',
-        'dbAlias' => 'campaign_id',
-        'title' => ts($label_prefix . 'campaign'),
-        'operatorType' => CRM_Report_Form::OP_MULTISELECT,
-        'type' => CRM_Utils_Type::T_INT,
-        'options'      => CRM_Campaign_BAO_Campaign::getCampaigns(NULL, NULL, NULL, FALSE),
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-      $key_prefix . $filter_set_name . '_contribution_source' => array(
-        'name' => 'source',
-        'dbAlias' => 'source',
-        'title' => ts($label_prefix . 'source'),
-        'operatorType' => CRM_Report_Form::OP_STRING,
-        'type' => CRM_Utils_Type::T_STRING,
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-      $key_prefix . $filter_set_name . '_contribution_amount' => array(
-        'name' => 'total_amount',
-        'dbAlias' => 'total_amount',
-        'title' => ts($label_prefix . 'amount'),
-        'type' => CRM_Utils_Type::T_MONEY,
-        'grouping' => $grouping,
-        'pseudofield' => $pseudofield,
-      ),
-    );
-    */
-
-    if (!$is_columns) {
-      if ($filter_set['scope_settings']['has_scope_option']) {
-        $scope_label_prefix = ucfirst($filter_set_name);
-        $fields[$filter_set_name . '_contribution_scope'] = array(
-          'title' => ts("\"$scope_label_prefix Contribution\" filter scope"),
-          'operatorType' => CRM_Report_Form::OP_SELECT,
-          'type' => CRM_Utils_Type::T_INT,
-          'options'      => array(
-            CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => ts($scope_label_prefix .' contribution ever meets these criteria'),
-            CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => ts($scope_label_prefix .' contribution meeting these criteria was within this date range'),
-            CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => ts($scope_label_prefix .' contribution meeting these criteria was within this amount range'),
-          ),
-          'grouping' => $grouping,
-          'pseudofield' => TRUE,
-        );
-      }
-
-      // Total filter needs one additional field.
-      if ($filter_set_name == 'total') {
-        $fields[$filter_set_name . '_contribution_total'] = array(
-          'title' => ts('Total contribution: total'),
-          'type' => CRM_Utils_Type::T_MONEY,
-          'dbAlias' => 'sum(total_amount)',
-          'having' => TRUE,
-          'grouping' => $grouping,
-          'pseudofield' => $pseudofield,
-        );
+      else {
+        $filter['pseudofield'] = $pseudofield;
       }
     }
-    foreach ($fields as &$field) {
-      $field['title'] = ucfirst($field['title']);
-    }
+    return $filters;
+  }
+
+//  function _getFilterSetFields($filter_set_name, $is_constructor = TRUE, $is_columns = FALSE) {
+  function _getFilterSetFields($filter_set_name) {
+
+    $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
+    $filterSet = new $filter_set_class_name;
+
+    $fields = $filterSet->_filter_criteria_fields;
+    $fields = array_merge($fields, $filterSet->_column_criteria_fields);
     return $fields;
   }
 
@@ -984,7 +877,8 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       foreach ($this->_columns as $columns_table_name => &$components) {
         unset($components['filters']);
       }
-      $filter_set_fields = $this->_getFilterSetFields($filter_set_name, FALSE, TRUE);
+      $filter_set_fields = $this->_getFilterSetFields($filter_set_name);
+      $filter_set_fields = $this->_adjustFilterSetPseudofield($filter_set_fields, FALSE, $filterset_name);
 
       $method = $filter_set['column_settings']['method'];
 
