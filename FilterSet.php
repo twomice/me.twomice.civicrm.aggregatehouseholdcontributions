@@ -134,24 +134,32 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
 
 function _buildFilterTables($obj) {
   $this->_obj = $obj;
+  $this->_filterSetTableName = $obj->_temp_table_prefix . $this->_name;
+  
+  $report = clone $this->_obj;
+  // Remove any filters from $report->_columns.
+  foreach ($report->_columns as &$components) {
+    unset($components['filters']);
+  }
+
   // Get scope for this filter from params.
   $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
   switch($selected_scope) {
     case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
-      $table_name = $this->_buildFilterTablesScopeEver();
+      $this->_buildFilterTablesForScopeEver($report);
       break;
     case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
-      $table_name = $this->_buildFilterTablesScopeDateRange();
+      $this->_buildFilterTablesForScopeDateRange($report);
       break;
     case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
-      $table_name = $this->_buildFilterTablesScopeAmountRange();
+      $this->_buildFilterTablesForScopeAmountRange($report);
       break;
     default:
       return;
   }
 
   $obj->_extraJoinTables[] = array(
-    'name' => $table_name,
+    'name' => $this->_filterSetTableName,
     'join' => 'INNER',
   );
 
