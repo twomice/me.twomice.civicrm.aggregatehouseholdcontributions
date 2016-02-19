@@ -53,160 +53,151 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
     );
   }
 
-  function _buildFilterTables($object) {
-    $report = clone $object;
+  function _buildFilterTables($obj) {
 
-    // Remove any filters from $this->_columns.
-    foreach ($report->_columns as $table_name => &$components) {
+    // Get scope for this filter from params.
+    $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
+
+    // Define a table name for the temporary table to be built for this filterset.
+    $table_name = $obj->_temp_table_prefix . $this->_name;
+
+    $report = clone $obj;
+    // Remove any filters from $report->_columns.
+    foreach ($report->_columns as &$components) {
       unset($components['filters']);
     }
 
-    // Re-build filterset fields for this filterset.
-    $filters = $report->_getFilterSetFields($filter_set_name);
-    $filter_set_fields = $this->_adjustFilterSetPseudofield($filters, FALSE, $filterset_name);
+    $filter_set_fields = $this->_getFields(FALSE);
 
-    // Get scope for this filter from params, or default to CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE.
-    $selected_scope = $this->_params[$filter_set_name . '_contribution_scope_value'] ?: CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE;
 
-    // Each scope has a method (see CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP
-    // and CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING).
-    $method = $filter_set->_scope['scopes'][$selected_scope]['method'];
+    switch($selected_scope) {
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
 
-    // Define a table name for the temporary to be built for this filterset,
-    // and delete or make temporary the table, depending on $this->-debug setting.
-    $table_name = $this->_temp_table_prefix . $filter_set_name;
-    $temporary = $this->_debug_temp_table($table_name);
+  //      and create a temp table along these lines:
+        $report->_columns[$obj->_tablename]['filters'] = array();
 
-    $qualifier_column_name = "qualifier_{$filter_set_name}";
-
-    if ($method == CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP) {
-      $table_name_pre = $this->_temp_table_prefix . "scope_{$filter_set_name}_pre";
-      $temporary = $this->_debug_temp_table($table_name_pre);
-
-      $this->_columns[$this->_tablename]['filters'] = array();
-
-      $supporting_table_filter_fields = $filter_set->_scope['scopes'][$selected_scope]['supporting_table_filter_fields'];
-      $primary_table_filter_fields = $filter_set->_scope['scopes'][$selected_scope]['primary_table_filter_fields'];
-
-      if (is_array($supporting_table_filter_fields)) {
-        foreach ($supporting_table_filter_fields as $field_name) {
-          $field = $filter_set_fields[$field_name];
-          $field['pseudofield'] = FALSE;
-          $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
-        }
-      }
-      elseif ($supporting_table_filter_fields == 'ALL') {
+        // Re-build filterset fields for this filterset.
         foreach ($filter_set_fields as $field_name => $field) {
-          if ($field_name != $filter_set_name . '_contribution_scope') {
+          if ($field_name != $this->_name . '_contribution_scope') {
             $field['pseudofield'] = FALSE;
-            $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
+            $report->_columns[$obj->_tablename]['filters'][$field_name] = $field;
           }
         }
-      }
-      elseif ($supporting_table_filter_fields == 'ALLEXCEPT') {
-        foreach ($filter_set_fields as $field_name => $field) {
-          if (
-            $field_name != $filter_set_name . '_contribution_scope'
-            && is_array($primary_table_filter_fields)
-            && !in_array($field_name, $primary_table_filter_fields)
-          ) {
-            $field['pseudofield'] = FALSE;
-            $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
-          }
-        }
-      }
-
-      $this->_filterWhere();
-      $query = "
-        CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`$qualifier_column_name`))
+        $report->_filterWhere();
+        $temporary = $obj->_debug_temp_table($table_name);
+        $query = "CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
           SELECT
-            t.aggid, {$filter_set->_scope['qualifier_expression']} as $qualifier_column_name
-          FROM
-            $this->_tablename t
-            {$this->_where}
-            group by aggid
+              t.aggid, min(t.receive_date) as qualifier_first
+            FROM
+              $obj->_tablename t
+              {$report->_where}
         ;
-      ";
-      $this->_debugDsm($query, 'query 1 for filter set '. $filter_set_name);
-      CRM_Core_DAO::executeQuery($query);
+        ";
+        $obj->_debugDsm($query, 'query (only) for filter set '. $this->_name);
+        CRM_Core_DAO::executeQuery($query);
 
-//      and create a temp table along these lines:
-      $this->_columns[$this->_tablename]['filters'] = array();
+        break;
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
+        /*
+                'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING,
+         */
 
-      if (is_array($primary_table_filter_fields)) {
-        foreach ($primary_table_filter_fields as $field_name) {
-          $field = $filter_set_fields[$field_name];
-          $field['pseudofield'] = FALSE;
-          $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
-        }
-      }
-      elseif ($primary_table_filter_fields == 'ALL') {
-        foreach ($filter_set_fields as $field_name => $field) {
-          if ($field_name != $filter_set_name . '_contribution_scope') {
-            $field['pseudofield'] = FALSE;
-            $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
-          }
-        }
-      }
-      elseif ($primary_table_filter_fields == 'ALLEXCEPT') {
+          $report->_columns[$obj->_tablename]['filters'] = array();
+          $filter_set_fields[$this->_scope['qualifier_filter']]['having'] = TRUE;
+          $filter_set_fields[$this->_scope['qualifier_filter']]['dbAlias'] = 'qualifier_first';
+          $report->_columns[$obj->_tablename]['filters'] = $filter_set_fields;
+          $report->_filterWhere();
+          $temporary = $obj->_debug_temp_table($table_name);
+          $query =   "
+            CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
+            SELECT
+              min(t.receive_date) as qualifier_first, t.aggid
+            FROM
+              $obj->_tablename t
+            {$report->_where}
+            group by aggid
+            {$report->_having}
+            ;
+          ";
+          $obj->_debugDsm($query, 'query (only) for filter set '. $this->_name);
+          CRM_Core_DAO::executeQuery($query);
+        break;
+
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
+        /*
+                'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
+                'supporting_table_filter_fields' => 'ALLEXCEPT',
+                'primary_table_filter_fields' => array(
+                  'first_contribution_amount',
+                ),
+         */
+
+        $table_name_pre = $obj->_temp_table_prefix . "scope_{$this->_name}_pre";
+
+        $report->_columns[$obj->_tablename]['filters'] = array();
+
+        $supporting_table_filter_fields = 'ALLEXCEPT';
+        $primary_table_filter_fields = array(
+          'first_contribution_amount',
+        );
+
         foreach ($filter_set_fields as $field_name => $field) {
           if (
-            $field_name != $filter_set_name . '_contribution_scope'
-            && is_array($supporting_table_filter_fields)
-            && !in_array($field_name, $supporting_table_filter_fields)
+            $field_name != $this->_name . '_contribution_scope'
+            && $field_name != 'first_contribution_amount'
           ) {
             $field['pseudofield'] = FALSE;
-            $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
+            $report->_columns[$obj->_tablename]['filters'][$field_name] = $field;
           }
         }
-      }
 
-      $this->_filterWhere();
-      $query = "CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
-        SELECT
-            t.aggid, fc.{$qualifier_column_name}
-          FROM
-            $this->_tablename t
-            INNER JOIN {$table_name_pre} fc ON fc.aggid = t.aggid AND fc.$qualifier_column_name = t.{$filter_set->_scope['qualifier_join']}
-            {$this->_where}
-      ;
-      ";
-      $this->_debugDsm($query, 'query 2 for filter set '. $filter_set_name);
+        $report->_filterWhere();
+        $temporary = $obj->_debug_temp_table($table_name_pre);
+        $query = "
+          CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`qualifier_first`))
+            SELECT
+              t.aggid, min(t.receive_date) as qualifier_first
+            FROM
+              $obj->_tablename t
+              {$report->_where}
+              group by aggid
+          ;
+        ";
+        $obj->_debugDsm($query, 'query 1 for filter set '. $this->_name);
+        CRM_Core_DAO::executeQuery($query);
 
-      CRM_Core_DAO::executeQuery($query);
-    }
-    elseif ($method == CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING) {
-      $this->_columns[$this->_tablename]['filters'] = array();
+  //      and create a temp table along these lines:
+        $field = $filter_set_fields['first_contribution_amount'];
+        $field['pseudofield'] = FALSE;
+        $report->_columns[$obj->_tablename]['filters'] = array(
+          'first_contribution_amount' => $field
+        );
 
-      // Otherwise, if the method is HAVING, create one temp table, along these lines:
-      $filter_set_fields[$filter_set->_scope['qualifier_filter']]['having'] = TRUE;
-      $filter_set_fields[$filter_set->_scope['qualifier_filter']]['dbAlias'] = $qualifier_column_name;
-
-      $this->_columns[$this->_tablename]['filters'] = $filter_set_fields;
-      dsm($this->_columns);
-      $this->_filterWhere();
-      $query =   "
-        CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
-        SELECT
-          {$filter_set->_scope['qualifier_expression']} as $qualifier_column_name, t.aggid
-        FROM
-          $this->_tablename t
-        {$this->_where}
-        group by aggid
-        {$this->_having}
+        $report->_filterWhere();
+        $temporary = $obj->_debug_temp_table($table_name);
+        $query = "CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
+          SELECT
+              t.aggid, fc.qualifier_first
+            FROM
+              $obj->_tablename t
+              INNER JOIN {$table_name_pre} fc ON fc.aggid = t.aggid AND fc.qualifier_first = t.receive_date
+              {$report->_where}
         ;
-      ";
-      $this->_debugDsm($query, 'query (only) for filter set '. $filter_set_name);
-      CRM_Core_DAO::executeQuery($query);
+        ";
+        $obj->_debugDsm($query, 'query 2 for filter set '. $this->_name);
+
+        CRM_Core_DAO::executeQuery($query);
+
+        break;
+      default:
+        return;
     }
-    $this->_extraJoinTables[] = array(
+
+    $obj->_extraJoinTables[] = array(
       'name' => $table_name,
       'join' => 'INNER',
     );
 
-    $this->_columns = $backup_columns;
-    $this->_havingClauses = $this->_whereClauses = array();
-    $this->_where = $this->_having = '';
   }
   
 }

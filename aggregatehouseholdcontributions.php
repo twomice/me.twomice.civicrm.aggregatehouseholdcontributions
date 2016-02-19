@@ -415,6 +415,10 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     $filter_set = $this->_getFilterSet($filter_set_name);
 
+    if ($filter_set_name == 'first') {
+      $filter_set->_buildFilterTables($this);
+      return;
+    }
     // If filter set doesn't require a separate joined table, we have nothing
     // to do here. Just return.
     if (!$filter_set->_requires_join) {

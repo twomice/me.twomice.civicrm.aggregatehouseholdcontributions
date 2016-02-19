@@ -11,6 +11,10 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Any extends m
   function _buildColumnCriteriaFields() {
     return;
   }
+  
+  function _buildFilterTables($object) {
+    return;
+  }
 
   function _adjustPseudofield($filters) {
     foreach ($filters as &$filter){

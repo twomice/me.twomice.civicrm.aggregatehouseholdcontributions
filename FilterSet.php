@@ -132,9 +132,30 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     }
   }
 
-  function _buildFilterTables($object) {
-    return;
+function _buildFilterTables($obj) {
+  $this->_obj = $obj;
+  // Get scope for this filter from params.
+  $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
+  switch($selected_scope) {
+    case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
+      $table_name = $this->_buildFilterTablesScopeEver();
+      break;
+    case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
+      $table_name = $this->_buildFilterTablesScopeDateRange();
+      break;
+    case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
+      $table_name = $this->_buildFilterTablesScopeAmountRange();
+      break;
+    default:
+      return;
   }
+
+  $obj->_extraJoinTables[] = array(
+    'name' => $table_name,
+    'join' => 'INNER',
+  );
+
+}
 
   function _getFields($is_constructor) {
     $fields = $this->_filter_criteria_fields;
