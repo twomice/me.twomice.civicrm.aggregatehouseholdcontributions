@@ -167,7 +167,8 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
 
   function _buildColumnTables($obj) {
     $this->_obj = $obj;
-    $this->_filterSetTableName = $obj->_temp_table_prefix . $this->_name;
+    $this->_columnTableName = $obj->_temp_table_prefix . 'column_' . $this->_name;
+    $this->_columnFieldName = "{$this->_name}_contribution";
 
     $report = clone $this->_obj;
     // Remove any filters from $report->_columns.
@@ -175,27 +176,28 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
       unset($components['filters']);
     }
 
-    // Get scope for this filter from params.
-    $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
-    switch($selected_scope) {
-      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
-        $this->_buildFilterTablesForScopeEver($report);
-        break;
-      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
-        $this->_buildFilterTablesForScopeDateRange($report);
-        break;
-      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
-        $this->_buildFilterTablesForScopeAmountRange($report);
-        break;
-      default:
-        $this->_buildFilterTablesForScopeDefault($report);
-        break;
+    // Incorporate filter values, if the column is not set to "__ contributions
+    // ever".
+    if ($this->_obj->_params["{$this->_name}_contribution_column_filter"] != CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER) {
+      $filter_set_fields = $this->_getColumnFields(FALSE);
+      $report->_columns[$this->_obj->_tablename]['filters'] = $filter_set_fields;
+      $report->_filterWhere();
     }
 
+    $this->_buildMyColumnTables($report);
+
     $obj->_extraJoinTables[] = array(
-      'name' => $this->_filterSetTableName,
-      'join' => 'INNER',
+      'name' => $this->_columnTableName,
+      'join' => 'LEFT',
     );
+
+    $field = $obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName];
+    $field['dbAlias'] = $this->_columnFieldName;
+    unset($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName]);
+    $obj->_columns[$this->_columnTableName]['fields'][$this->_columnFieldName] = $field;
+  }
+
+  function _buildMyColumnTables($report) {
   }
 
   function _getFields($is_constructor) {

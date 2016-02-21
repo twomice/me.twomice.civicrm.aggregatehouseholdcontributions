@@ -437,137 +437,15 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   }
 
   function _buildColumnTempTable($filter_set_name) {
-    $column_filter_param_name = "{$filter_set_name}_contribution_column_filter";
-    $filter_set = $this->_getFilterSet($filter_set_name);
     $field_name = "{$filter_set_name}_contribution";
     $field = $this->_columns[$this->_tablename]['fields'][$field_name];
-
     // If this field was not selected for display, just return.
     if (!$this->_params['fields'][$field_name]) {
       return;
     }
 
-    $table_name = $this->_temp_table_prefix . 'column_' . $filter_set_name;
-    $temporary = $this->_debug_temp_table($table_name);
-
-    // If the filter is in use, then the column filter may use the same settings
-    // (so if it's not set to "__ contributions ever", check for identical settings).
-    if (
-      $this->_params["is_filter_{$filter_set_name}"]
-      && $this->_params["{$filter_set_name}_contribution_column_filter"] != CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER
-    ) {
-      // If settings for the column are the same as for the filter, just use
-      // the qualifier column from the joined table.
-      $exact_match = TRUE;
-      foreach($this->_params as $param_name => $param) {
-        if ($param_name == $column_filter_param_name) {
-          continue;
-        }
-        // If the param name begins with the filter set name, compare the
-        // corresponding column_* parameter.
-        if (strpos($param_name, "{$filter_set_name}_") === 0) {
-          $column_param_name = "column_{$param_name}";
-          if (
-            array_key_exists($column_param_name, $this->_params)
-            && $this->_params[$column_param_name] !== $param
-          ) {
-            $exact_match = FALSE;
-            break;
-          }
-        }
-      }
-    }
-    if ($exact_match) {
-      // If the filter settings are an exact match, then just use the value
-      // already calculated in the joined table.
-      $qualifier_column_name = "qualifier_{$filter_set_name}";
-      $field['dbAlias'] = "qualifier_{$filter_set_name}";
-      unset($this->_columns[$this->_tablename]['fields'][$field_name]);
-      $this->_columns['civireport_tmp_total']['fields'][$field_name] = $field;
-    }
-    else {
-      // If the filter settings are different, then we have to build another
-      // joined table to do the calculation.
-
-      $backup_columns = $this->_columns;
-
-      foreach ($this->_columns as $columns_table_name => &$components) {
-        unset($components['filters']);
-      }
-      $filter_set_fields = $filter_set->_getFields(FALSE);
-
-      $method = $filter_set->_column_settings['method'];
-
-      $qualifier_column_name = "column_{$filter_set_name}";
-
-      // Incorporate filter values, if the column is not set to "__ contributions
-      // ever".
-      if ($this->_params["{$filter_set_name}_contribution_column_filter"] != CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER) {
-        $this->_columns[$this->_tablename]['filters'] = $filter_set_fields;
-        $this->_filterWhere();
-      }
-
-      if ($method == CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED) {
-        $table_name_pre = "civireport_tmp_column_{$filter_set_name}_pre";
-        $temporary = $this->_debug_temp_table($table_name_pre);
-
-        $query = "
-          CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`$qualifier_column_name`))
-          SELECT
-            t.aggid, {$filter_set->_column_settings['qualifier_expression']} as $qualifier_column_name
-          FROM
-            $this->_tablename t
-          {$this->_where}
-            group by aggid
-          ;
-        ";
-        $this->_debugDsm($query, "PRE table query for column: {$filter_set_name}");
-        CRM_Core_DAO::executeQuery($query);
-
-        $query = "
-          CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
-          SELECT
-            t.aggid, t.total_amount as {$field_name}
-          FROM
-            $this->_tablename t
-            INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.{$filter_set->_column_settings['qualifier_join']}
-          {$this->_where}
-          ;
-        ";
-        $this->_debugDsm($query, "Table query for column: {$filter_set_name}");
-        CRM_Core_DAO::executeQuery($query);
-      }
-      elseif ($method == CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE) {
-        $query =   "
-          CREATE $temporary TABLE $table_name (INDEX (  `aggid` ))
-          SELECT
-            t.aggid, {$filter_set->_column_settings['qualifier_expression']} as {$field_name}
-          FROM
-            $this->_tablename t
-            {$this->_where}
-            group by aggid
-
-        ";
-        $this->_debugDsm($query, "Only query for column: {$filter_set_name}");
-        CRM_Core_DAO::executeQuery($query);
-      }
-
-      $this->_extraJoinTables[] = array(
-        'name' => $table_name,
-        'join' => 'LEFT',
-      );
-
-      $this->_columns = $backup_columns;
-      $this->_havingClauses = $this->_whereClauses = array();
-      $this->_where = $this->_having = '';
-
-
-      $field['dbAlias'] = $field_name;
-      unset($this->_columns[$this->_tablename]['fields'][$field_name]);
-      $this->_columns[$table_name]['fields'][$field_name] = $field;
-
-
-    }
+    $filter_set = $this->_getFilterSet($filter_set_name);
+    $filter_set->_buildColumnTables($this);
   }
 
   /**

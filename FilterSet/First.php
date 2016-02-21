@@ -189,62 +189,43 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
 
     CRM_Core_DAO::executeQuery($query);
 
+  }
 
-///////////////////////////////////////////////////
-/*
-
-  elseif ($table_1_where_filters == 'ALLEXCEPT') {
-    foreach ($filter_set_fields as $field_name => $field) {
-      if (
-        $field_name != $filter_set_name . '_contribution_scope'
-        && is_array($table_2_where_filters)
-        && !in_array($field_name, $table_2_where_filters)
-      ) {
-        $field['pseudofield'] = FALSE;
-        $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
-      }
-    }
-
-    $this->_filterWhere();
+  function _buildMyColumnTables($report) {
+    /*
+      'qualifier_expression' => 'min(t.receive_date)',
+      'qualifier_join' => 'receive_date',
+      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
+     */
+    $table_name_pre = "civireport_tmp_column_{$this->_name}_pre";
+    $temporary = $this->_obj->_debug_temp_table($table_name_pre);
+    $qualifier_column_name = "column_{$this->_name}";
     $query = "
       CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`$qualifier_column_name`))
-        SELECT
-          t.aggid, {$filter_set['scope_settings']['qualifier_expression']} as $qualifier_column_name
-        FROM
-          tmp_aggregated_household_contributions t
-          {$this->_where}
-          group by aggid
+      SELECT
+        t.aggid, min(t.receive_date) as $qualifier_column_name
+      FROM
+    {$this->_obj->_tablename} t
+      {$report->_where}
+        group by aggid
       ;
     ";
-    $this->_debugDsm($query, 'query 1 for filter set '. $filter_set_name);
+    $this->_obj->_debugDsm($query, "PRE table query for column: {$this->_name}");
     CRM_Core_DAO::executeQuery($query);
 
-//      and create a temp table along these lines:
-    $this->_columns[$this->_tablename]['filters'] = array();
-
-    foreach ($table_2_where_filters as $field_name) {
-      $field = $filter_set_fields[$field_name];
-      $field['pseudofield'] = FALSE;
-      $this->_columns[$this->_tablename]['filters'][$field_name] = $field;
-    }
-
-    $this->_filterWhere();
-    $query = "CREATE $temporary TABLE {$table_name} (INDEX (`aggid`))
+    $temporary = $this->_obj->_debug_temp_table($this->_columnTableName);
+    $query = "
+      CREATE $temporary TABLE {$this->_columnTableName} (INDEX (`aggid`))
       SELECT
-          t.aggid
-        FROM
-          tmp_aggregated_household_contributions t
-          INNER JOIN {$table_name_pre} fc ON fc.aggid = t.aggid AND fc.$qualifier_column_name = t.{$filter_set['scope_settings']['qualifier_join']}
-          {$this->_where}
-    ;
+        t.aggid, t.total_amount as {$this->_columnFieldName}
+      FROM
+        {$this->_obj->_tablename} t
+        INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.receive_date
+      {$report->_where}
+      ;
     ";
-    $this->_debugDsm($query, 'query 2 for filter set '. $filter_set_name);
-
+    $this->_obj->_debugDsm($query, "Table query for column: {$filter_set_name}");
     CRM_Core_DAO::executeQuery($query);
-
- */
-///////////////////////////////////////////////////
-
   }
-  
+ 
 }

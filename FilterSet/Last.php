@@ -183,5 +183,42 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
     CRM_Core_DAO::executeQuery($query);
   }
 
+  function _buildMyColumnTables($report) {
+    /*
+      'qualifier_expression' => 'max(t.receive_date)',
+      'qualifier_join' => 'receive_date',
+      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
+     */
+    $table_name_pre = "civireport_tmp_column_{$this->_name}_pre";
+    $temporary = $this->_obj->_debug_temp_table($table_name_pre);
+    $qualifier_column_name = "column_{$this->_name}";
+    $query = "
+      CREATE $temporary TABLE $table_name_pre (INDEX (  `aggid` ), INDEX (`$qualifier_column_name`))
+      SELECT
+        t.aggid, max(t.receive_date) as $qualifier_column_name
+      FROM
+      {$this->_obj->_tablename} t
+      {$report->_where}
+        group by aggid
+      ;
+    ";
+    $this->_obj->_debugDsm($query, "PRE table query for column: {$this->_name}");
+    CRM_Core_DAO::executeQuery($query);
+
+    $temporary = $this->_obj->_debug_temp_table($this->_columnTableName);
+    $query = "
+      CREATE $temporary TABLE {$this->_columnTableName} (INDEX (`aggid`))
+      SELECT
+        t.aggid, t.total_amount as {$this->_columnFieldName}
+      FROM
+        {$this->_obj->_tablename} t
+        INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.receive_date
+      {$report->_where}
+      ;
+    ";
+    $this->_obj->_debugDsm($query, "Table query for column: {$filter_set_name}");
+    CRM_Core_DAO::executeQuery($query);
+  }
+
 }
 

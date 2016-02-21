@@ -197,4 +197,26 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Largest exten
     $this->_obj->_debugDsm($query, 'query (only) for filter set '. $this->_name);
     CRM_Core_DAO::executeQuery($query);
   }
+
+  function _buildMyColumnTables($report) {
+    /*
+      'qualifier_expression' => 'max(t.total_amount)',
+      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE,
+     */
+    $temporary = $this->_obj->_debug_temp_table($this->_columnTableName);
+    $query =   "
+      CREATE $temporary TABLE $this->_columnTableName (INDEX (  `aggid` ))
+      SELECT
+        t.aggid, max(t.total_amount) as {$this->_columnFieldName}
+      FROM
+        {$this->_obj->_tablename} t
+        {$report->_where}
+        group by aggid
+
+    ";
+    $this->_obj->_debugDsm($query, "Only query for column: {$this->_name}");
+    CRM_Core_DAO::executeQuery($query);
+  }
+
 }
+
