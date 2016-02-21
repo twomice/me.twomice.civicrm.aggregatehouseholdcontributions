@@ -198,7 +198,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     );
   }
 
-  function _getFields($is_constructor, $with_columns = TRUE) {
+  function _getFields($is_constructor) {
     $fields = $this->_filter_criteria_fields;
     $fields = array_merge($fields, $this->_column_criteria_fields);
     return $this->_adjustPseudofield($fields, $is_constructor);
