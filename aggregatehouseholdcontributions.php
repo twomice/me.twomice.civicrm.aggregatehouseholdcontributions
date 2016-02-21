@@ -10,7 +10,7 @@ define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE', 1);
 define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED', 2);
 
 class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form {
-  var $_debug = TRUE;
+  var $_debug = FALSE;
   var $_tablename = 'tmp_aggregated_household_contributions';
   var $_temp_table_prefix = "civireport_tmp_";
   var $_filterSetNames = array(
