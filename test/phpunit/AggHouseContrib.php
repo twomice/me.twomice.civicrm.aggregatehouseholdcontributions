@@ -96,23 +96,24 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
 
     $this->assertEquals($expected['row_count'], $row_count, "Row count should be {$expected['row_count']} but is $row_count.");
 
-    $first_row_name = $this->getText('css=tr#crm-report_0 td.crm-report-civicrm_contact_display_name a');
-    $first_row_total = $this->getText('css=tr#crm-report_0 td.crm-report-civireport_tmp_column_total_total_contribution');
-    $first_row_first = $this->getText('css=tr#crm-report_0 td.crm-report-civireport_tmp_column_first_first_contribution');
-    $first_row_last = $this->getText('css=tr#crm-report_0 td.crm-report-civireport_tmp_column_last_last_contribution');
-    $first_row_largest = $this->getText('css=tr#crm-report_0 td.crm-report-civireport_tmp_column_largest_largest_contribution');
-
-    $assert_values = array(
-      'first_row_name',
-      'first_row_total',
-      'first_row_first',
-      'first_row_last',
-      'first_row_largest',
+    $assert_row_values = array(
+      "name",
+      "total",
+      "first",
+      "last",
+      "largest",
     );
-    foreach ($assert_values as $value_name) {
-      $this->assertEquals($expected[$value_name], $$value_name, "{$value_name} is '{$$value_name}' but should be '{$expected[$value_name]}'.");
-    }
+    foreach ($expected['rows'] as $row_id => $values) {
+      $name = $this->getText("css=tr#crm-report_{$row_id} td.crm-report-civicrm_contact_display_name a");
+      $total = $this->getText("css=tr#crm-report_{$row_id} td.crm-report-civireport_tmp_column_total_total_contribution");
+      $first = $this->getText("css=tr#crm-report_{$row_id} td.crm-report-civireport_tmp_column_first_first_contribution");
+      $last = $this->getText("css=tr#crm-report_{$row_id} td.crm-report-civireport_tmp_column_last_last_contribution");
+      $largest = $this->getText("css=tr#crm-report_{$row_id} td.crm-report-civireport_tmp_column_largest_largest_contribution");
 
+      foreach ($assert_row_values as $value_name) {
+        $this->assertEquals($values[$value_name], $$value_name, "In row {$row_id}, {$value_name} is '{$$value_name}' but should be '{$values[$value_name]}'.");
+      }
+    }
   }
 
   public function testFilterTotal() {
