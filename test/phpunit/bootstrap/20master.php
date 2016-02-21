@@ -1,4 +1,5 @@
 <?php
+PHPUnit_Extensions_SeleniumTestCase::shareSession(true);
 
 $config = array(
   'base_url' => 'http://20master.dlnw.localhost',
