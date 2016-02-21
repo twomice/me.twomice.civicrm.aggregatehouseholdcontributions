@@ -132,40 +132,73 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     }
   }
 
-function _buildFilterTables($obj) {
-  $this->_obj = $obj;
-  $this->_filterSetTableName = $obj->_temp_table_prefix . $this->_name;
-  
-  $report = clone $this->_obj;
-  // Remove any filters from $report->_columns.
-  foreach ($report->_columns as &$components) {
-    unset($components['filters']);
+  function _buildFilterTables($obj) {
+    $this->_obj = $obj;
+    $this->_filterSetTableName = $obj->_temp_table_prefix . $this->_name;
+
+    $report = clone $this->_obj;
+    // Remove any filters from $report->_columns.
+    foreach ($report->_columns as &$components) {
+      unset($components['filters']);
+    }
+
+    // Get scope for this filter from params.
+    $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
+    switch($selected_scope) {
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
+        $this->_buildFilterTablesForScopeEver($report);
+        break;
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
+        $this->_buildFilterTablesForScopeDateRange($report);
+        break;
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
+        $this->_buildFilterTablesForScopeAmountRange($report);
+        break;
+      default:
+        $this->_buildFilterTablesForScopeDefault($report);
+        break;
+    }
+
+    $obj->_extraJoinTables[] = array(
+      'name' => $this->_filterSetTableName,
+      'join' => 'INNER',
+    );
   }
 
-  // Get scope for this filter from params.
-  $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
-  switch($selected_scope) {
-    case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
-      $this->_buildFilterTablesForScopeEver($report);
-      break;
-    case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
-      $this->_buildFilterTablesForScopeDateRange($report);
-      break;
-    case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
-      $this->_buildFilterTablesForScopeAmountRange($report);
-      break;
-    default:
-      return;
+  function _buildColumnTables($obj) {
+    $this->_obj = $obj;
+    $this->_filterSetTableName = $obj->_temp_table_prefix . $this->_name;
+
+    $report = clone $this->_obj;
+    // Remove any filters from $report->_columns.
+    foreach ($report->_columns as &$components) {
+      unset($components['filters']);
+    }
+
+    // Get scope for this filter from params.
+    $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
+    switch($selected_scope) {
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
+        $this->_buildFilterTablesForScopeEver($report);
+        break;
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
+        $this->_buildFilterTablesForScopeDateRange($report);
+        break;
+      case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
+        $this->_buildFilterTablesForScopeAmountRange($report);
+        break;
+      default:
+        $this->_buildFilterTablesForScopeDefault($report);
+        break;
+    }
+
+    $obj->_extraJoinTables[] = array(
+      'name' => $this->_filterSetTableName,
+      'join' => 'INNER',
+    );
   }
 
-  $obj->_extraJoinTables[] = array(
-    'name' => $this->_filterSetTableName,
-    'join' => 'INNER',
-  );
-
-}
-
-  function _getFields($is_constructor) {
+  function _getFields($is_constructor, $with_columns = TRUE) {
     $fields = $this->_filter_criteria_fields;
     $fields = array_merge($fields, $this->_column_criteria_fields);
     return $this->_adjustPseudofield($fields, $is_constructor);

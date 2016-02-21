@@ -35,12 +35,30 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
 //      'pseudofield' => $pseudofield,
     );
   }
+  
+  function _buildFilterTablesForScopeDefault($report) {
+    $report->_columns[$this->_obj->_tablename]['filters'] = array();
 
-  function fdsa_buildFilterCriteriaFields() {
-    parent::_buildFilterCriteriaFields();
-//    $this-
-      // Total filter needs one additional field.
-      if ($filter_set_name == 'total') {
-      }
+    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields['total_contribution_total']['having'] = TRUE;
+    $filter_set_fields['total_contribution_total']['dbAlias'] = 'qualifier_' . $this->_name;
+
+    $report->_columns[$this->_obj->_tablename]['filters'] = $filter_set_fields;
+    $report->_filterWhere();
+    $temporary = $this->_obj->_debug_temp_table($this->_filterSetTableName);
+    $query =   "
+      CREATE $temporary TABLE {$this->_filterSetTableName} (INDEX (`aggid`))
+      SELECT
+        sum(t.total_amount) as qualifier_total, t.aggid
+      FROM
+        {$this->_obj->_tablename} t
+      {$report->_where}
+      group by aggid
+      {$report->_having}
+      ;
+    ";
+    $this->_obj->_debugDsm($query, 'query (only) for filter set '. $this->_name);
+    CRM_Core_DAO::executeQuery($query);
   }
+
 }
