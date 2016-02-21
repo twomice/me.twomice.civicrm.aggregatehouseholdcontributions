@@ -1,6 +1,4 @@
 <?php
-PHPUnit_Extensions_SeleniumTestCase::shareSession(true);
-
 $config = array(
   'base_url' => 'http://20master.dlnw.localhost',
   'report_url' => '/civicrm/report/me.twomice.civicrm.aggregatehouseholdcontributions?reset=1',
