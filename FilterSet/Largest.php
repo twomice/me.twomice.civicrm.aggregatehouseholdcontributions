@@ -53,7 +53,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Largest exten
   }
 
   function _buildFilterTablesForScopeEver($report) {
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
     /*
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => array(
           'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
@@ -104,7 +104,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Largest exten
   }
 
   function _buildFilterTablesForScopeDateRange($report) {
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
 
     /*
             CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => array(
@@ -176,7 +176,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Largest exten
      */
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
 
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
     $filter_set_fields['largest_contribution_amount']['having'] = TRUE;
     $filter_set_fields['largest_contribution_amount']['dbAlias'] = 'qualifier_largest';
 

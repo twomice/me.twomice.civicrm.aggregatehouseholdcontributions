@@ -59,7 +59,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
           'supporting_table_filter_fields' => '',
           'primary_table_filter_fields' => 'ALL',
      */
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
     $this->_filterSetTableName_pre = $this->_obj->_temp_table_prefix . "scope_{$this->_name}_pre";
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
     $report->_filterWhere();
@@ -100,7 +100,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
   }
 
   function _buildFilterTablesForScopeDateRange($report) {
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
 
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
     $filter_set_fields['first_contribution_date']['having'] = TRUE;
@@ -131,7 +131,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
         'first_contribution_amount',
       ),
    */
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
 
     $this->_filterSetTableName_pre = $this->_obj->_temp_table_prefix . "scope_{$this->_name}_pre";
 

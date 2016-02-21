@@ -39,7 +39,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
   function _buildFilterTablesForScopeDefault($report) {
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
 
-    $filter_set_fields = $this->_getFields(FALSE);
+    $filter_set_fields = $this->_getFilterFields(FALSE);
     $filter_set_fields['total_contribution_total']['having'] = TRUE;
     $filter_set_fields['total_contribution_total']['dbAlias'] = 'qualifier_' . $this->_name;
 
