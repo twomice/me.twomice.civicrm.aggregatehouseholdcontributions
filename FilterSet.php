@@ -17,7 +17,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         '_is_column_criteria' => TRUE,
         '_base_title' => 'date',
         'title' => $this->_buildFilterCriteriaFieldLabel('date'),
-        'type' => CRM_Utils_Type::T_DATE,
+        'type' => (CRM_Utils_Type::T_DATE|CRM_Utils_Type::T_TIME),
         'operatorType' => CRM_Report_Form::OP_DATE,
         'grouping' => $this->_name . '-filters',
 //        'pseudofield' => $pseudofield,
