@@ -16,7 +16,7 @@ cj(document).ready(function(){
     </div>\
   ');
 
-  cj('div#set-filters table.report-layout').attr('id', 'set-filters-original');
+  cj('div#report-tab-set-filters table.report-layout').attr('id', 'set-filters-original');
   for (i in filterSets) {
 
     // Check how many column-filter fields exist for this set. If there are none,
@@ -92,9 +92,11 @@ function aggregatedHouseholds_toggleColumnFilterAvailability(event) {
   var count = cj('div#set-aggregate-column-filters table.aggregate-households-visible').length
   if(count > 0) {
     cj('h3#set-aggregate-column-filters-header').show();
+    cj('div#set-aggregate-column-filters-noop-help').hide();
   }
   else {
     cj('h3#set-aggregate-column-filters-header').hide();
+    cj('div#set-aggregate-column-filters-noop-help').show();
   }
 }
 
@@ -143,17 +145,27 @@ function aggregatedHouseholds_toggleColumnFilterCopySettingsButton(event) {
 function aggregatedHouseholds_copy_filter_settings(event) {
   setName = event.data.setName;
   // Copy values for all select elements.
-  cj('table#set-filters-'+ setName + ' tbody select.form-select').each(function(idx, el){
+  cj('select[id^="' + setName + '_contribution_"]').each(function(idx, el){
     var column_field_id = 'column_'+ el.id
     var selector = 'select#' + column_field_id
     cj(selector).val(cj(el).val()).change();
   })
+
   // Copy values for all input elements.
-  cj('table#set-filters-'+ setName + ' tbody input').each(function(idx, el){
+  cj('input[id^="' + setName + '_contribution_"]').each(function(idx, el){
     var column_field_id = 'column_'+ el.id
     var selector = 'input#' + column_field_id
     cj(selector).val(cj(el).val()).change();
   })
+
+  // Specifically set date_from and date_to (these are datepicker fields which
+  // have dynamic IDs, so we can determine the aggregate-column-field ID just
+  // by prepending 'column_' to the filter field ID.
+  var from_date = cj('input[id^="' + setName + '_contribution_date_from_display_"]').val()
+  cj('input[id^="column_' + setName + '_contribution_date_from_display_"]').val(from_date)
+  var to_date = cj('input[id^="' + setName + '_contribution_date_to_display_"]').val()
+  cj('input[id^="column_' + setName + '_contribution_date_to_display_"]').val(to_date)
+
   // Ensure the click event doesn't trigger its default behavior.
   event.preventDefault();
 }

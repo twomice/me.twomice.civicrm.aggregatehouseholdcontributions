@@ -29,6 +29,15 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   var $_extraJoinTables = array();
 
   function __construct() {
+    $smarty = CRM_Core_Smarty::singleton();
+    $extension_root = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+    $extension_templates_directory = $extension_root . 'templates';
+    if ( is_array( $smarty->template_dir ) ) {
+        array_unshift( $smarty->template_dir, $extension_templates_directory );
+    } else {
+        $smarty->template_dir = array( $extension_templates_directory, $smarty->template_dir );
+    }
+
     $this->_registerAutoloader();
 
     $this->_columns = array(
@@ -225,6 +234,13 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     $bhfe[] = 'is_filter_any';
     $bhfe[] = 'is_filter_largest';
     $this->assign('beginHookFormElements', $bhfe);
+
+
+    $this->tabs['AggregateColumns'] = array(
+      'title' => ts('Aggregate Columns'),
+      'tpl' => 'AggregateColumns',
+      'div_label' => 'AggregateColumns',
+    );
   }
 
   /**
