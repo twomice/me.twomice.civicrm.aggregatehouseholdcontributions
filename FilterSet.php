@@ -1,12 +1,18 @@
 <?php
 
-class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_Report_Form {
+/**
+ * Base class for filterSets. Extends CRM_Report_Form as a lazy way to gain access
+ * to read and write CRM_Report_Form::_columns when working with a cloned report
+ * object (see $this->_obj).
+ */
+class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_Report_Form{
   var $_filter_criteria_fields = array();
   var $_column_criteria_fields = array();
-  var $_scope_fields = array();
   var $_name = '';
-  var $_requires_join;
-  var $_scope = array();
+  var $_obj;
+  var $_filterSetTableName = '';
+  var $_columnFieldName = '';
+  var $_columnTableName = '';
 
   function __construct() {
     $this->_criteria_fields_base = array(
@@ -20,7 +26,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'type' => (CRM_Utils_Type::T_DATE|CRM_Utils_Type::T_TIME),
         'operatorType' => CRM_Report_Form::OP_DATE,
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
       $this->_name .'_contribution_financial_type_id' => array(
         'name' => 'financial_type_id',
@@ -33,7 +38,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'type' => CRM_Utils_Type::T_INT,
         'options'      => CRM_Contribute_PseudoConstant::financialType(),
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
       $this->_name .'_contribution_page_id' => array(
         'name' => 'contribution_page_id',
@@ -46,7 +50,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'type' => CRM_Utils_Type::T_INT,
         'options'      => CRM_Contribute_PseudoConstant::contributionPage(),
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
       $this->_name .'_contribution_status_id' => array(
         'name' => 'contribution_status_id',
@@ -60,7 +63,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'options'      => CRM_Contribute_PseudoConstant::contributionStatus(),
         'default' => '1',
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
       $this->_name .'_contribution_campaign_id' => array(
         'name' => 'campaign_id',
@@ -73,7 +75,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'type' => CRM_Utils_Type::T_INT,
         'options'      => CRM_Campaign_BAO_Campaign::getCampaigns(NULL, NULL, NULL, FALSE),
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
       $this->_name .'_contribution_source' => array(
         'name' => 'source',
@@ -85,7 +86,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'operatorType' => CRM_Report_Form::OP_STRING,
         'type' => CRM_Utils_Type::T_STRING,
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
       $this->_name .'_contribution_amount' => array(
         'name' => 'total_amount',
@@ -96,7 +96,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'title' => $this->_buildFilterCriteriaFieldLabel('amount'),
         'type' => CRM_Utils_Type::T_MONEY,
         'grouping' => $this->_name . '-filters',
-//        'pseudofield' => $pseudofield,
       ),
     );
 
