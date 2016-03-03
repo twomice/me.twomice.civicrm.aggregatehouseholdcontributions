@@ -197,11 +197,13 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
       "largest",
     );
     foreach ($expected['rows'] as $row_id => $values) {
-      $name = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(1) a"); // link inside "display name" column
       $total = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(2)"); // "total" column
       $first = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(3)"); // "first" column
       $last = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(4)"); // "last" column
       $largest = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(5)"); // "largest" column
+
+      $name_full = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(1) a"); // link inside "display name" column
+      $name = substr($name_full, 0, 3) . '...' . substr($name_full, -3); // 'name' is obfuscated as [first three]...[last three]
 
       foreach ($assert_row_values as $value_name) {
         $this->assertEquals($values[$value_name], $$value_name, "In row {$row_id}, {$value_name} is '{$$value_name}' but should be '{$values[$value_name]}'.");
@@ -299,7 +301,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->startReportSetup();
     $this->setFilterTotalValues();
     $this->setColumnTotalValues('custom');
-//    sleep(30);
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
     $this->assertResults(__FUNCTION__);
   }
@@ -309,7 +310,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->setFilterTotalValues();
     $this->setColumnTotalValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -319,7 +319,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('largest_contribution_scope_value', 'value=1');
     $this->setColumnLargestValues('custom');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -329,7 +328,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('largest_contribution_scope_value', 'value=2');
     $this->setColumnLargestValues('custom');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -338,30 +336,28 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->setFilterLargestValues();
     $this->select('largest_contribution_scope_value', 'value=3');
     $this->setColumnLargestValues('custom');
-//    sleep(30);
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
     $this->assertResults(__FUNCTION__);
   }
 
   public function testFilterLargestWithScopeEverAndColumnLargestWithCopySettings() {
-    $this->markTestSkipped('Test generates FATAL ERROR. Must be revisited.');
     $this->startReportSetup();
     $this->setFilterLargestValues();
     $this->select('largest_contribution_scope_value', 'value=1');
     $this->setColumnLargestValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
+  /**
+   * @group fatal
+   */
   public function testFilterLargestWithScopeDateAndColumnLargestWithCopySettings() {
-    $this->markTestSkipped('Test generates FATAL ERROR. Must be revisited.');
     $this->startReportSetup();
     $this->setFilterLargestValues();
     $this->select('largest_contribution_scope_value', 'value=2');
     $this->setColumnLargestValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -371,12 +367,8 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('largest_contribution_scope_value', 'value=3');
     $this->setColumnLargestValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
-
-
-///////////////// firstWithScope.*AndColumnFirstWith.*Settings
 
   public function testFilterFirstWithScopeEverAndColumnFirstWithCustomSettings() {
     $this->startReportSetup();
@@ -384,7 +376,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('first_contribution_scope_value', 'value=1');
     $this->setColumnFirstValues('custom');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -394,7 +385,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('first_contribution_scope_value', 'value=2');
     $this->setColumnFirstValues('custom');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -403,19 +393,16 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->setFilterFirstValues();
     $this->select('first_contribution_scope_value', 'value=3');
     $this->setColumnFirstValues('custom');
-//    sleep(30);
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
     $this->assertResults(__FUNCTION__);
   }
 
   public function testFilterFirstWithScopeEverAndColumnFirstWithCopySettings() {
-    $this->markTestSkipped('Test generates FATAL ERROR. Must be revisited.');
     $this->startReportSetup();
     $this->setFilterFirstValues();
     $this->select('first_contribution_scope_value', 'value=1');
     $this->setColumnFirstValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -425,22 +412,17 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('first_contribution_scope_value', 'value=2');
     $this->setColumnFirstValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
   public function testFilterFirstWithScopeAmountAndColumnFirstWithCopySettings() {
-    $this->markTestSkipped('Test generates FATAL ERROR. Must be revisited.');
     $this->startReportSetup();
     $this->setFilterFirstValues();
     $this->select('first_contribution_scope_value', 'value=3');
     $this->setColumnFirstValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
-
-///////////////// lastWithScope.*AndColumnLastWith.*Settings
 
   public function testFilterLastWithScopeEverAndColumnLastWithCustomSettings() {
     $this->startReportSetup();
@@ -448,7 +430,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('last_contribution_scope_value', 'value=1');
     $this->setColumnLastValues('custom');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -458,7 +439,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('last_contribution_scope_value', 'value=2');
     $this->setColumnLastValues('custom');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -467,19 +447,16 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->setFilterLastValues();
     $this->select('last_contribution_scope_value', 'value=3');
     $this->setColumnLastValues('custom');
-//    sleep(30);
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
     $this->assertResults(__FUNCTION__);
   }
 
   public function testFilterLastWithScopeEverAndColumnLastWithCopySettings() {
-    $this->markTestSkipped('Test generates FATAL ERROR. Must be revisited.');
     $this->startReportSetup();
     $this->setFilterLastValues();
     $this->select('last_contribution_scope_value', 'value=1');
     $this->setColumnLastValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
@@ -489,18 +466,15 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->select('last_contribution_scope_value', 'value=2');
     $this->setColumnLastValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
   public function testFilterLastWithScopeAmountAndColumnLastWithCopySettings() {
-    $this->markTestSkipped('Test generates FATAL ERROR. Must be revisited.');
     $this->startReportSetup();
     $this->setFilterLastValues();
     $this->select('last_contribution_scope_value', 'value=3');
     $this->setColumnLastValues('copy');
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
-//    sleep(30);
     $this->assertResults(__FUNCTION__);
   }
 
