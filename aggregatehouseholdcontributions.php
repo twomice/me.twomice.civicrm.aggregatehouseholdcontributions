@@ -13,6 +13,10 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   var $_debug = FALSE;
   var $_tablename = 'tmp_aggregated_household_contributions';
   var $_temp_table_prefix = "civireport_tmp_";
+  var $_supportedRelationshipTypes = array(
+    6, // Household member of/is
+    7, // Head of household for/is
+  );
   var $_filterSetNames = array(
     'total',
     'any',
@@ -438,7 +442,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * table should be temporary, or that it should be created as a regular table
    * for later review. For regular tables, drop the table in case it exists
    * already.
-   * 
+   *
    * @param <type> $table_name
    * @return string
    */
@@ -512,8 +516,26 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * logger.
    */
   function buildQuery($applyLimit = TRUE) {
+    // Temporarily remove all filter params so they don't apply to the $where clause
+    // in parent::buildQuery(). We've already applied filters in building the
+    // various temp tables, so now we just want all the rows in $this->_tablename;
+    // applying the filters again at this point will likely screen out some
+    // records that we want to keep.
+    $backup_params = $this->_params;
+    foreach ($this->_columns as $columns) {
+      if (array_key_exists('filters', $columns) && is_array($columns['filters'])) {
+        foreach ($columns['filters'] as $filter_name => $filter) {
+          $param_key = $filter_name . '_value';
+          unset($this->_params[$param_key]);
+        }
+      }
+    }
+    // Build the query.
     $sql = parent::buildQuery($applyLimit);
     $this->_debugDsm($sql, __FUNCTION__ . ' query');
+    // Return params to their original values; don't know who else will be using them.
+    $this->_params = $backup_params;
+
     return $sql;
   }
 
@@ -560,26 +582,65 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     // Build the query and run it.
     $temporary = $this->_debug_temp_table($this->_tablename);
 
+    $relationship_types_in_string = implode(',', $this->_supportedRelationshipTypes);
     $query = "
       CREATE $temporary TABLE $this->_tablename
       SELECT u.aggid, u.id AS cid, contrib.* FROM
-      (SELECT IF(r.id IS NOT NULL, r.contact_id_b, {$this->_aliases['civicrm_contact']}.id) AS aggid, {$this->_aliases['civicrm_contact']}.id
-      FROM
-      civicrm_contact {$this->_aliases['civicrm_contact']}
-      LEFT JOIN civicrm_relationship r ON r.relationship_type_id IN (6,7) AND
-       r.contact_id_a = {$this->_aliases['civicrm_contact']}.id
-       $where AND {$this->_aliases['civicrm_contact']}.contact_type = 'individual'
-      UNION
-      SELECT {$this->_aliases['civicrm_contact']}.id AS aggid, {$this->_aliases['civicrm_contact']}.id
-      FROM
-      civicrm_contact {$this->_aliases['civicrm_contact']}
-       $where AND {$this->_aliases['civicrm_contact']}.contact_type = 'household'
-      ) u
-      INNER JOIN civicrm_contribution contrib ON contrib.contact_id = u.id
+        (
+          -- All individuals with the tag/group
+          SELECT IF(r.id IS NOT NULL, r.contact_id_b, contact_civireport.id) AS aggid, contact_civireport.id
+          FROM
+            civicrm_contact contact_civireport
+          LEFT JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string) AND
+            r.contact_id_a = contact_civireport.id
+          $where
+          AND contact_civireport.contact_type = 'individual'
+
+          -- All households with the tag/group
+          UNION
+          SELECT contact_civireport.id AS aggid, contact_civireport.id
+            FROM
+              civicrm_contact contact_civireport
+          $where
+          AND contact_civireport.contact_type = 'household'
+
+          -- All households related to individuals with the tag/group
+          UNION
+          SELECT r.contact_id_b AS aggid, r.contact_id_b as id
+          FROM
+            civicrm_contact contact_civireport
+          INNER JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string) AND
+            r.contact_id_a = contact_civireport.id
+          $where
+
+          -- All individuals related to households with the tag/group
+          UNION
+          SELECT r.contact_id_b AS aggid, r.contact_id_a as id
+          FROM
+            civicrm_contact contact_civireport
+          INNER JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string) AND
+            r.contact_id_b = contact_civireport.id
+          $where
+
+          -- All individuals sharing a household with individuals with the tag/group
+          UNION
+          SELECT r.contact_id_b AS aggid, r_related.contact_id_a as id
+          FROM
+            civicrm_contact contact_civireport
+          INNER JOIN civicrm_relationship r
+            ON r.relationship_type_id IN ($relationship_types_in_string)
+            AND r.contact_id_a = contact_civireport.id
+          INNER JOIN civicrm_relationship r_related
+            ON r_related.relationship_type_id in ($relationship_types_in_string)
+            AND r_related.contact_id_b = r.contact_id_b
+            AND r_related.id <> r.id
+          $where
+        ) u
+        INNER JOIN civicrm_contribution contrib ON contrib.contact_id = u.id
     ";
 
     CRM_Core_DAO::executeQuery($query);
-    $this->_debugDsm($query, 'query');
+    $this->_debugDsm($query, 'Central Table query');
     $this->_debugDsm($this->_params, 'params');
 
   }
