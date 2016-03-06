@@ -190,10 +190,21 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
       'join' => 'LEFT',
     );
 
+    // In $obj->_columns, remove the field from $obj->_tablename['fields'] to
+    // $this->_columnTableName['fields'], so it will be pulled from $this->_columnTableName.
     $field = $obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName];
     $field['dbAlias'] = $this->_columnFieldName;
     unset($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName]);
     $obj->_columns[$this->_columnTableName]['fields'][$this->_columnFieldName] = $field;
+
+    // If this filterset has a "*_date" aggregate field (e.g., first_contribution_date),
+    // do the same for the *_date field as for the base (amount) field.
+    if ($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date']) {
+      $field = $obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date'];
+      $field['dbAlias'] = $this->_columnFieldName . '_date';
+      unset($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date']);
+      $obj->_columns[$this->_columnTableName]['fields'][$this->_columnFieldName . '_date'] = $field;
+    }
   }
 
   function _buildMyColumnTables($report) {

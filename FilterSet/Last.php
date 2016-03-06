@@ -180,7 +180,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
     $query = "
       CREATE $temporary TABLE {$this->_columnTableName} (INDEX (`aggid`))
       SELECT
-        t.aggid, t.total_amount as {$this->_columnFieldName}
+        t.aggid, t.total_amount as {$this->_columnFieldName}, t.receive_date as {$this->_columnFieldName}_date
       FROM
         {$this->_obj->_tablename} t
         INNER JOIN {$table_name_pre} p ON p.aggid = t.aggid AND p.$qualifier_column_name = t.receive_date

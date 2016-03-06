@@ -145,20 +145,28 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       $this->_tablename => array(
         'grouping' => 'aggregate-fields',
         'fields' => array(
+          'first_contribution' => array(
+            'title' => ts('First contribution amount'),
+            'dbAlias' => 'CALCULATE',
+          ),
+          'last_contribution' => array(
+            'title' => ts('Last contribution amount'),
+            'dbAlias' => 'CALCULATE',
+          ),
+          'largest_contribution' => array(
+            'title' => ts('Largest contribution amount'),
+            'dbAlias' => 'CALCULATE',
+          ),
           'total_contribution' => array(
             'title' => ts('Total contribution'),
             'dbAlias' => 'CALCULATE',
           ),
-          'first_contribution' => array(
-            'title' => ts('First contribution'),
+          'first_contribution_date' => array(
+            'title' => ts('First contribution date'),
             'dbAlias' => 'CALCULATE',
           ),
-          'last_contribution' => array(
-            'title' => ts('Last contribution'),
-            'dbAlias' => 'CALCULATE',
-          ),
-          'largest_contribution' => array(
-            'title' => ts('Largest contribution'),
+          'last_contribution_date' => array(
+            'title' => ts('Last contribution date'),
             'dbAlias' => 'CALCULATE',
           ),
         ),
