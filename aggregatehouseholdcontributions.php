@@ -178,6 +178,9 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     parent::__construct();
 
+    // Update label for Tag and Group filters to explain altered meaning.
+    $this->_columns['civicrm_tag']['filters']['tagid']['title'] = ts('Tag (for any Aggregated Household member)');
+    $this->_columns['civicrm_group']['filters']['gid']['title'] = ts('Group (for any Aggregated Household member)');
   }
 
   /**
