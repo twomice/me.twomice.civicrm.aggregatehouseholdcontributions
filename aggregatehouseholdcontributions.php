@@ -591,8 +591,14 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT IF(r.id IS NOT NULL, r.contact_id_b, contact_civireport.id) AS aggid, contact_civireport.id
           FROM
             civicrm_contact contact_civireport
-          LEFT JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string) AND
-            r.contact_id_a = contact_civireport.id
+          LEFT JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string)
+            AND r.is_active = 1
+            AND (
+              r.end_date >= now()
+              OR r.end_date IS NULL
+            )
+            AND r.contact_id_a = contact_civireport.id
+
           $where
           AND contact_civireport.contact_type = 'individual'
 
@@ -609,8 +615,13 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT r.contact_id_b AS aggid, r.contact_id_b as id
           FROM
             civicrm_contact contact_civireport
-          INNER JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string) AND
-            r.contact_id_a = contact_civireport.id
+          INNER JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string)
+            AND r.is_active = 1
+            AND (
+              r.end_date >= now()
+              OR r.end_date IS NULL
+            )
+            AND r.contact_id_a = contact_civireport.id
           $where
 
           -- All individuals related to households with the tag/group
@@ -618,8 +629,13 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           SELECT r.contact_id_b AS aggid, r.contact_id_a as id
           FROM
             civicrm_contact contact_civireport
-          INNER JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string) AND
-            r.contact_id_b = contact_civireport.id
+          INNER JOIN civicrm_relationship r ON r.relationship_type_id IN ($relationship_types_in_string)
+            AND r.is_active = 1
+            AND (
+              r.end_date >= now()
+              OR r.end_date IS NULL
+            )
+            AND r.contact_id_b = contact_civireport.id
           $where
 
           -- All individuals sharing a household with individuals with the tag/group
@@ -629,11 +645,21 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
             civicrm_contact contact_civireport
           INNER JOIN civicrm_relationship r
             ON r.relationship_type_id IN ($relationship_types_in_string)
-            AND r.contact_id_a = contact_civireport.id
+              AND r.is_active = 1
+              AND (
+                r.end_date >= now()
+                OR r.end_date IS NULL
+              )
+              AND r.contact_id_a = contact_civireport.id
           INNER JOIN civicrm_relationship r_related
             ON r_related.relationship_type_id in ($relationship_types_in_string)
-            AND r_related.contact_id_b = r.contact_id_b
-            AND r_related.id <> r.id
+              AND r_related.is_active = 1
+              AND (
+                r_related.end_date >= now()
+                OR r_related.end_date IS NULL
+              )
+              AND r_related.contact_id_b = r.contact_id_b
+              AND r_related.id <> r.id
           $where
         ) u
         INNER JOIN civicrm_contribution contrib ON contrib.contact_id = u.id
