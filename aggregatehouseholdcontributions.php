@@ -531,13 +531,18 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     // in parent::buildQuery(). We've already applied filters in building the
     // various temp tables, so now we just want all the rows in $this->_tablename;
     // applying the filters again at this point will likely screen out some
-    // records that we want to keep.
+    // records that we want to keep.  The exception here is the "Any 
+    // Contribution" filter, because there is no temp-table for that filter set;
+    // so we'll not remove filter params if the param is named "any_*".
     $backup_params = $this->_params;
     foreach ($this->_columns as $columns) {
       if (array_key_exists('filters', $columns) && is_array($columns['filters'])) {
         foreach ($columns['filters'] as $filter_name => $filter) {
-          $param_key = $filter_name . '_value';
-          unset($this->_params[$param_key]);
+          if (substr($filter_name, 0, 4) != 'any_') {
+            unset($this->_params[$filter_name . '_value']);
+            unset($this->_params[$filter_name . '_max']);
+            unset($this->_params[$filter_name . '_min']);
+          }
         }
       }
     }
