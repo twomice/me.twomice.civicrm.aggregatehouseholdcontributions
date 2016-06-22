@@ -6,22 +6,19 @@
   <license>GPL-3.0</license>
   <maintainer>
     <author>Allen Shaw</author>
-    <email>allen@twomice.me</email>
+    <email>allen@joineryhq.com</email>
   </maintainer>
-  <releaseDate>2015-02-08</releaseDate>
-  <version>2.1</version>
-  <develStage>stable</develStage>
+  <releaseDate>2016-06-22</releaseDate>
+  <version>1.2</version>
   <urls>
     <url desc="Documentation">https://github.com/twomice/me.twomice.civicrm.aggregatehouseholdcontributions</url>
-    <url desc="Extension sponsor (development)">http://JoineryHQ.com</url>
-    <url desc="Extension sponsor (concept)">http://donatelifenw.org</url>
+    <url desc="Support">https://github.com/twomice/me.twomice.civicrm.aggregatehouseholdcontributions/issues</url>
   </urls>
   <compatibility>
     <ver>4.4</ver>
     <ver>4.6</ver>
   </compatibility>
-  <comments>Extension development sponsored by Joinery, http://JoineryHQ.com</comments>
-  <civix/>
+  <comments>Extension development sponsored by Donate Life Northwest (http://donatelifenw.org).</comments>
   <typeInfo>
     <component>CiviContribute</component>
     <reportUrl>me.twomice.civicrm.aggregatehouseholdcontributions</reportUrl>
