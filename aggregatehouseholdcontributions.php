@@ -372,16 +372,18 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         // Loop through all the filters defined in $this->_columns, and unset
         // all params related to that filter.
         foreach ($this->_columns as $tableName => $columns) {
-          foreach ($columns['filters'] as $fieldName => $field) {
-            $field_prefix = substr($fieldName, 0, $prefixLength);
-            if ($field_prefix == $filterset_prefix) {
-              unset($this->_params["{$fieldName}_value"]);
-              unset($this->_params["{$fieldName}_op"]);
-              unset($this->_params["{$fieldName}_min"]);
-              unset($this->_params["{$fieldName}_max"]);
-              unset($this->_params["{$fieldName}_relative"]);
-              unset($this->_params["{$fieldName}_from"]);
-              unset($this->_params["{$fieldName}_to"]);
+          if (is_array($columns['filters'])) {
+            foreach ($columns['filters'] as $fieldName => $field) {
+              $field_prefix = substr($fieldName, 0, $prefixLength);
+                if ($field_prefix == $filterset_prefix) {
+                unset($this->_params["{$fieldName}_value"]);
+                unset($this->_params["{$fieldName}_op"]);
+                unset($this->_params["{$fieldName}_min"]);
+                unset($this->_params["{$fieldName}_max"]);
+                unset($this->_params["{$fieldName}_relative"]);
+                unset($this->_params["{$fieldName}_from"]);
+                unset($this->_params["{$fieldName}_to"]);
+              }
             }
           }
         }
@@ -718,15 +720,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   }
 
   /**
-   * For a given filterSet name, create the filterSet object if necessary, cache
-   * it in $this->_filterSets, and return it.
+   * For a given filterSet name, create the filterSet object if necessary, 
+   * and return it.
    */
   function _getFilterSet($filter_set_name) {
-    if (!array_key_exists($filter_set_name, $this->_filterSets)) {
+    static $filter_sets_cache = array();
+    if (!array_key_exists($filter_set_name, $filter_sets_cache)) {
       $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
-      $this->_filterSets[$filter_set_name] = new $filter_set_class_name;
+      $filter_sets_cache[$filter_set_name] = new $filter_set_class_name;
     }
-    return $this->_filterSets[$filter_set_name];
+    return $filter_sets_cache[$filter_set_name];
   }
 
 }
