@@ -31,7 +31,7 @@ The report is recognizing each Household and its Individual household members or
 
 1. **Aggregating relationships:** Only relationships of the types "Household member of/is" and “Head of Household for/is,” which are active at the time the report is run, are used to aggregate Individuals into Households. You may need to create or edit relationships between your contacts to fit this specification.
 
-1. **Multiple Households per Individual: **If an Individual has an aggregating relationship to two (or more) Household records, that Individual's contributions will be reported as given by all of those Aggregated Households. Although this may be a rare case, it is important to note that gifts could be “double counted” in this way.
+1. **Multiple Households per Individual:** If an Individual has an aggregating relationship to two (or more) Household records, that Individual's contributions will be reported as given by all of those Aggregated Households. Although this may be a rare case, it is important to note that gifts could be “double counted” in this way.
 
 1. **Households as a whole:** Fundraisers cannot use this report to produce results that break out Individuals who are members of Households. Individual names and information will be shown in results only for Individuals who have no aggregating relationships.
 
@@ -50,7 +50,7 @@ These include typical display columns, as well as columns showing amounts for th
 #### Filters
 This report provides five special sets of options for Filters, and special handling for Tag and Group filters:
 
-1.  **Apply "Total Contribution" filter: ** Checking this filter option enables an additional collection of filter options to limit the report based on the **total amount** of contributions by each Aggregated Household. These include date, type, page, status, campaign, source, and qualifying amount. Use these fields to limit the contributions that should be totaled up before filtering. Use the last field, "Total contribution: total," to define  limiting criteria against which the totaled amount will be compared; Aggregated Households whose totaled amounts do not match this criteria will be excluded from the report output.  
+1.  **Apply "Total Contribution" filter:** Checking this filter option enables an additional collection of filter options to limit the report based on the **total amount** of contributions by each Aggregated Household. These include date, type, page, status, campaign, source, and qualifying amount. Use these fields to limit the contributions that should be totaled up before filtering. Use the last field, "Total contribution: total," to define  limiting criteria against which the totaled amount will be compared; Aggregated Households whose totaled amounts do not match this criteria will be excluded from the report output.  
 &nbsp;  
 **Example:** 
 The following "Total Contribution" filter settings will limit the report to Aggregate Households who have given a total of at least $1,000 in completed contributions in the previous year:
@@ -67,11 +67,11 @@ For the examples below, different results are obtained with these filters:
   * First Contribution: qualifying amount: “Is greater than or equal to $1,000”
   * And one of the following First contribution: filter scopes …
 
-     1. **First contribution ever meets these criteria: ** Limits results to Aggregated Households whose _first gift ever_ matches all the other criteria defined above in the first contribution set. 
+     1. **First contribution ever meets these criteria:** Limits results to Aggregated Households whose _first gift ever_ matches all the other criteria defined above in the first contribution set. 
 &nbsp;
 **Scope Example:** With three filters above, this scope will find all those whose first gift ever was \$1,000 or more and was made for the "Annual Gala" Campaign last year (but will exclude, for example, those who made a gift before last year, or whose first gift was not \$1,000 or more or for the Annual Gala.)
 
-     2. **First contribution meeting these criteria was within this date range: ** Limits results to Aggregated Households whose _first gift matching all the other criteria_ fell within the specified _date_ criteria.
+     2. **First contribution meeting these criteria was within this date range:** Limits results to Aggregated Households whose _first gift matching all the other criteria_ fell within the specified _date_ criteria.
 &nbsp;
 **Scope Example:** With three filters above, this scope will find all those whose first \$1,000 or larger Annual Gala gift was made last year (but will exclude those with a gift of \$1,000 or more for the same Campaign in a previous year.)
 
@@ -79,9 +79,9 @@ For the examples below, different results are obtained with these filters:
 &nbsp;
 **Scope Example:** With three filters above, this scope will find all those whose first gift for the Gala last year was \$1,000 or more (but will exclude, for example, those who sent a \$50 gift coded to the Annual Gala campaign last year to hold seats, then later last year made a \$1,000 gift at the Gala.)
 
-     1. **Apply "Last Contribution" filter: ** Checking this filter option enables an additional collection of filter options to limit the report based on a **"last" contribution** by each Aggregated Household. Options for defining “last” are comparable to defining "first" in the "First Contribution" filter.
+     1. **Apply "Last Contribution" filter:** Checking this filter option enables an additional collection of filter options to limit the report based on a **"last" contribution** by each Aggregated Household. Options for defining “last” are comparable to defining "first" in the "First Contribution" filter.
 
-     1. **Apply "Largest Contribution" filter set: ** Checking this filter option enables an additional collection of filter options to limit the report based on a **"largest" contribution** by each Aggregated Household. Options for defining “largest” are comparable to defining "first" in the "First Contribution" filter.
+     1. **Apply "Largest Contribution" filter set:** Checking this filter option enables an additional collection of filter options to limit the report based on a **"largest" contribution** by each Aggregated Household. Options for defining “largest” are comparable to defining "first" in the "First Contribution" filter.
 
      1. **Apply "Any Contribution" filter set:** Checking this filter option enables an additional collection of filter options to limit the report based on any single contribution by each Aggregated Household. As with the "Total Contribution" filter, there is no "filter scope" criteria in this filter's options.
 
@@ -105,7 +105,7 @@ As described above, the Columns criteria include options to display typical Civi
 1. **"Total contribution" column** provides these options:
     1. **Total of all contributions ever** Selecting this option will cause the Total Contribution column to display the total of all contributions ever given by the Aggregated Household, without regard to any other criteria such as type or status (so it may include in-kind, fees, incomplete, refunded, cancelled, etc.)
     1. **Use custom settings** Selecting this option opens up further options to either:
-        * **Copy settings from filter ** to calculate display amount with the same criteria defined on the "Total Contribution" Filter. OR
+        * **Copy settings from filter** to calculate display amount with the same criteria defined on the "Total Contribution" Filter. OR
        * Define different criteria to calculate the displayed amount, selecting from same options available in filters.
 
 1. **"First contribution" column** provides the same options as described for **"Total Contribution" column**. You may configure these options to cause the "First Contribution Amount" column to display either:
@@ -117,4 +117,3 @@ As described above, the Columns criteria include options to display typical Civi
 1. **"Largest contribution" column** provides the same options as described for **"Total Contribution" column**. You may configure these options to cause the "Largest Contribution Amount" column to display either:
     * The amount of the _largest contribution ever_ by amount, without regard to any other criteria, OR 
     * Use custom settings either copied from the "Largest Contribution" filter or in the criteria here. 
-
