@@ -12,7 +12,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
     $this->_filter_criteria_fields['total_contribution_total'] = array(
       '_is_filter_criteria' => TRUE,
       '_is_column_criteria' => FALSE,
-      'title' => ts('Total contribution: total'),
+      'title' => E::ts('Total contribution: total'),
       'type' => CRM_Utils_Type::T_MONEY,
       'dbAlias' => 'sum(total_amount)',
       'having' => TRUE,

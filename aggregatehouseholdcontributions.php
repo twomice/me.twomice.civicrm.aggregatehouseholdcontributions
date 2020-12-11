@@ -52,34 +52,34 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         'grouping' => 'contact-fields',
         'fields' => array(
           'first_name' => array(
-            'title' => ts('First Name'),
+            'title' => E::ts('First Name'),
           ),
           'last_name' => array(
-            'title' => ts('Last Name'),
+            'title' => E::ts('Last Name'),
           ),
           'display_name' => array(
-            'title' => ts('Display Name'),
+            'title' => E::ts('Display Name'),
           ),
           'sort_name' => array(
-            'title' => ts('Sort Name'),
+            'title' => E::ts('Sort Name'),
           ),
           'contact_type' => array(
-            'title' => ts('Contact Type'),
+            'title' => E::ts('Contact Type'),
           ),
           'prefix_id' => array(
-            'title' => ts('Prefix'),
+            'title' => E::ts('Prefix'),
           ),
           'suffix_id' => array(
-            'title' => ts('Suffix'),
+            'title' => E::ts('Suffix'),
           ),
           'external_identifier' => array(
-            'title' => ts('External ID'),
+            'title' => E::ts('External ID'),
           ),
           'is_deceased' => array(
             'dbAlias' => "if(is_deceased, 'Yes', 'No')",
           ),
           'source' => array(
-            'title' => ts('Source'),
+            'title' => E::ts('Source'),
           ),
           'id' => array(
             'required' => TRUE,
@@ -92,7 +92,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         'grouping' => 'contact-fields',
         'fields' => array(
           'email' => array(
-            'title' => ts('Email'),
+            'title' => E::ts('Email'),
             'no_repeat' => TRUE,
           ),
         ),
@@ -112,7 +112,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         'alias' => 'state',
         'fields' => array(
           'state_name' => array(
-            'title' => ts('State/Province'),
+            'title' => E::ts('State/Province'),
             'dbAlias' => 'state_civireport.name',
           ),
         ),
@@ -123,7 +123,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         'alias' => 'country',
         'fields' => array(
           'country_name' => array(
-            'title' => ts('Country'),
+            'title' => E::ts('Country'),
             'dbAlias' => 'country_civireport.name',
           ),
         ),
@@ -134,7 +134,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         'fields' => array(
           'phone' => NULL,
           'phone_ext' => array(
-            'title' => ts('Phone Extension'),
+            'title' => E::ts('Phone Extension'),
           ),
         ),
       ),
@@ -146,27 +146,27 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
         'grouping' => 'aggregate-fields',
         'fields' => array(
           'first_contribution' => array(
-            'title' => ts('First contribution amount'),
+            'title' => E::ts('First contribution amount'),
             'dbAlias' => 'CALCULATE',
           ),
           'last_contribution' => array(
-            'title' => ts('Last contribution amount'),
+            'title' => E::ts('Last contribution amount'),
             'dbAlias' => 'CALCULATE',
           ),
           'largest_contribution' => array(
-            'title' => ts('Largest contribution amount'),
+            'title' => E::ts('Largest contribution amount'),
             'dbAlias' => 'CALCULATE',
           ),
           'total_contribution' => array(
-            'title' => ts('Total contribution'),
+            'title' => E::ts('Total contribution'),
             'dbAlias' => 'CALCULATE',
           ),
           'first_contribution_date' => array(
-            'title' => ts('First contribution date'),
+            'title' => E::ts('First contribution date'),
             'dbAlias' => 'CALCULATE',
           ),
           'last_contribution_date' => array(
-            'title' => ts('Last contribution date'),
+            'title' => E::ts('Last contribution date'),
             'dbAlias' => 'CALCULATE',
           ),
         ),
@@ -187,8 +187,8 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     parent::__construct();
 
     // Update label for Tag and Group filters to explain altered meaning.
-    $this->_columns['civicrm_tag']['filters']['tagid']['title'] = ts('Tag (for any Aggregated Household member)');
-    $this->_columns['civicrm_group']['filters']['gid']['title'] = ts('Group (for any Aggregated Household member)');
+    $this->_columns['civicrm_tag']['filters']['tagid']['title'] = E::ts('Tag (for any Aggregated Household member)');
+    $this->_columns['civicrm_group']['filters']['gid']['title'] = E::ts('Group (for any Aggregated Household member)');
   }
 
   /**
@@ -198,36 +198,36 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     parent::preProcess();
 
     // Add special filters for Total, Any, Largest, Last, First.
-    $this->addElement('checkbox', 'is_filter_total', ts('Apply "Total Contribution" filter'));
-    $this->addElement('checkbox', 'is_filter_any', ts('Apply "Any Contribution" filter'));
-    $this->addElement('checkbox', 'is_filter_largest', ts('Apply "Largest Contribution" filter'));
-    $this->addElement('checkbox', 'is_filter_last', ts('Apply "Last Contribution" filter'));
-    $this->addElement('checkbox', 'is_filter_first', ts('Apply "First Contribution" filter'));
+    $this->addElement('checkbox', 'is_filter_total', E::ts('Apply "Total Contribution" filter'));
+    $this->addElement('checkbox', 'is_filter_any', E::ts('Apply "Any Contribution" filter'));
+    $this->addElement('checkbox', 'is_filter_largest', E::ts('Apply "Largest Contribution" filter'));
+    $this->addElement('checkbox', 'is_filter_last', E::ts('Apply "Last Contribution" filter'));
+    $this->addElement('checkbox', 'is_filter_first', E::ts('Apply "First Contribution" filter'));
 
 
     // Add special fields for "Aggregate Column Values".
     $options = array();
-    $options[] = $this->createElement('radio', NULL, NULL, ts('First contribution ever'), 1);
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
-    $this->addGroup($options, 'first_contribution_column_filter', ts('"First contribution" column'));
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('First contribution ever'), 1);
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Use custom settings'), 2);
+    $this->addGroup($options, 'first_contribution_column_filter', E::ts('"First contribution" column'));
     $this->setDefaults(array('first_contribution_column_filter' => 1));
 
     $options = array();
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Last contribution ever'), 1);
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
-    $this->addGroup($options, 'last_contribution_column_filter', ts('"Last contribution" column'));
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Last contribution ever'), 1);
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Use custom settings'), 2);
+    $this->addGroup($options, 'last_contribution_column_filter', E::ts('"Last contribution" column'));
     $this->setDefaults(array('last_contribution_column_filter' => 1));
 
     $options = array();
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Largest contribution ever'), 1);
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
-    $this->addGroup($options, 'largest_contribution_column_filter', ts('"Largest contribution" column'));
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Largest contribution ever'), 1);
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Use custom settings'), 2);
+    $this->addGroup($options, 'largest_contribution_column_filter', E::ts('"Largest contribution" column'));
     $this->setDefaults(array('largest_contribution_column_filter' => 1));
 
     $options = array();
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Total of all contributions ever'), 1);
-    $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
-    $this->addGroup($options, 'total_contribution_column_filter', ts('"Total contribution" column'));
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Total of all contributions ever'), 1);
+    $options[] = $this->createElement('radio', NULL, NULL, E::ts('Use custom settings'), 2);
+    $this->addGroup($options, 'total_contribution_column_filter', E::ts('"Total contribution" column'));
     $this->setDefaults(array('total_contribution_column_filter' => 1));
 
     // Place all these new fields into the template in 'beginHookFormElements'
@@ -249,7 +249,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     // Add the AggregateColumns tab.
     $this->tabs['AggregateColumns'] = array(
-      'title' => ts('Aggregate Columns'),
+      'title' => E::ts('Aggregate Columns'),
       'tpl' => 'AggregateColumns',
       'div_label' => 'AggregateColumns',
     );
@@ -425,9 +425,9 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           'reset=1&selectedChild=contribute&cid=' . $row['civicrm_contact_id']
         );
         $rows[$rowNum]['civicrm_contact_display_name_link'] = $url;
-        $rows[$rowNum]['civicrm_contact_display_name_hover'] = ts("Lists detailed contribution(s) for this record.");
+        $rows[$rowNum]['civicrm_contact_display_name_hover'] = E::ts("Lists detailed contribution(s) for this record.");
         $rows[$rowNum]['civicrm_contact_sort_name_link'] = $url;
-        $rows[$rowNum]['civicrm_contact_sort_name_hover'] = ts("Lists detailed contribution(s) for this record.");
+        $rows[$rowNum]['civicrm_contact_sort_name_hover'] = E::ts("Lists detailed contribution(s) for this record.");
         $entryFound = TRUE;
       }
       // skip looking further in rows, if first row itself doesn't
