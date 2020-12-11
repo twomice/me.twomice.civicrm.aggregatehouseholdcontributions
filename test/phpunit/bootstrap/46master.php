@@ -7,4 +7,4 @@ $config = array(
 //  'gid_value_option_locator' => 'value=316'
 );
 
-require_once(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'common_demo.php');
+require_once dirname(__FILE__) . DIRECTORY_SEPARATOR . 'common_demo.php';

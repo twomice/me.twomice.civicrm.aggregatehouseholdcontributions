@@ -5,7 +5,7 @@
  * to read and write CRM_Report_Form::_columns when working with a cloned report
  * object (see $this->_obj).
  */
-class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_Report_Form{
+class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_Report_Form {
   var $_filter_criteria_fields = array();
   var $_column_criteria_fields = array();
   var $_name = '';
@@ -14,20 +14,20 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
   var $_columnFieldName = '';
   var $_columnTableName = '';
 
-  function __construct() {
+  public function __construct() {
     $this->_criteria_fields_base = array(
-        $this->_name .'_contribution_date' => array(
+      $this->_name . '_contribution_date' => array(
         'name' => 'receive_date',
         'dbAlias' => 'receive_date',
         '_is_filter_criteria' => TRUE,
         '_is_column_criteria' => TRUE,
         '_base_title' => 'date',
         'title' => $this->_buildFilterCriteriaFieldLabel('date'),
-        'type' => (CRM_Utils_Type::T_DATE|CRM_Utils_Type::T_TIME),
+        'type' => (CRM_Utils_Type::T_DATE | CRM_Utils_Type::T_TIME),
         'operatorType' => CRM_Report_Form::OP_DATE,
         'grouping' => $this->_name . '-filters',
       ),
-      $this->_name .'_contribution_financial_type_id' => array(
+      $this->_name . '_contribution_financial_type_id' => array(
         'name' => 'financial_type_id',
         'dbAlias' => 'financial_type_id',
         '_is_filter_criteria' => TRUE,
@@ -39,7 +39,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'options'      => CRM_Contribute_PseudoConstant::financialType(),
         'grouping' => $this->_name . '-filters',
       ),
-      $this->_name .'_contribution_page_id' => array(
+      $this->_name . '_contribution_page_id' => array(
         'name' => 'contribution_page_id',
         'dbAlias' => 'contribution_page_id',
         '_is_filter_criteria' => TRUE,
@@ -51,7 +51,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'options'      => CRM_Contribute_PseudoConstant::contributionPage(),
         'grouping' => $this->_name . '-filters',
       ),
-      $this->_name .'_contribution_status_id' => array(
+      $this->_name . '_contribution_status_id' => array(
         'name' => 'contribution_status_id',
         'dbAlias' => 'contribution_status_id',
         '_is_filter_criteria' => TRUE,
@@ -64,7 +64,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'default' => '1',
         'grouping' => $this->_name . '-filters',
       ),
-      $this->_name .'_contribution_campaign_id' => array(
+      $this->_name . '_contribution_campaign_id' => array(
         'name' => 'campaign_id',
         'dbAlias' => 'campaign_id',
         '_is_filter_criteria' => TRUE,
@@ -76,7 +76,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'options'      => CRM_Campaign_BAO_Campaign::getCampaigns(NULL, NULL, NULL, FALSE),
         'grouping' => $this->_name . '-filters',
       ),
-      $this->_name .'_contribution_source' => array(
+      $this->_name . '_contribution_source' => array(
         'name' => 'source',
         'dbAlias' => 'source',
         '_is_filter_criteria' => TRUE,
@@ -87,7 +87,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
         'type' => CRM_Utils_Type::T_STRING,
         'grouping' => $this->_name . '-filters',
       ),
-      $this->_name .'_contribution_amount' => array(
+      $this->_name . '_contribution_amount' => array(
         'name' => 'total_amount',
         'dbAlias' => 'total_amount',
         '_is_filter_criteria' => TRUE,
@@ -103,24 +103,25 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     $this->_buildColumnCriteriaFields();
   }
 
-  function _buildFilterCriteriaFields() {
-    foreach($this->_criteria_fields_base as $key => $field) {
+  public function _buildFilterCriteriaFields() {
+    foreach ($this->_criteria_fields_base as $key => $field) {
       if (!$field['_is_column_criteria']) {
         continue;
       }
       $this->_filter_criteria_fields[$key] = $field;
     }
   }
-  
-  function _buildFilterCriteriaFieldLabel($base_title) {
+
+  public function _buildFilterCriteriaFieldLabel($base_title) {
     return ucfirst($this->_name) . " contribution: qualifying $base_title";
   }
-  function _buildColumnCriteriaFieldLabel($base_title) {
+
+  public function _buildColumnCriteriaFieldLabel($base_title) {
     return ucfirst($base_title);
   }
 
-  function _buildColumnCriteriaFields() {
-    foreach($this->_criteria_fields_base as $key => $field) {
+  public function _buildColumnCriteriaFields() {
+    foreach ($this->_criteria_fields_base as $key => $field) {
       if (!$field['_is_column_criteria']) {
         continue;
       }
@@ -131,7 +132,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     }
   }
 
-  function _buildFilterTables($obj) {
+  public function _buildFilterTables($obj) {
     $this->_obj = $obj;
     $this->_filterSetTableName = $obj->_temp_table_prefix . $this->_name;
 
@@ -143,16 +144,19 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
 
     // Get scope for this filter from params.
     $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
-    switch($selected_scope) {
+    switch ($selected_scope) {
       case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
         $this->_buildFilterTablesForScopeEver($report);
         break;
+
       case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE:
         $this->_buildFilterTablesForScopeDateRange($report);
         break;
+
       case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE:
         $this->_buildFilterTablesForScopeAmountRange($report);
         break;
+
       default:
         $this->_buildFilterTablesForScopeDefault($report);
         break;
@@ -164,7 +168,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     );
   }
 
-  function _buildColumnTables($obj) {
+  public function _buildColumnTables($obj) {
     $this->_obj = $obj;
     $this->_columnTableName = $obj->_temp_table_prefix . 'column_' . $this->_name;
     $this->_columnFieldName = "{$this->_name}_contribution";
@@ -207,32 +211,32 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     }
   }
 
-  function _buildMyColumnTables($report) {
+  public function _buildMyColumnTables($report) {
   }
 
-  function _getFields($is_constructor) {
+  public function _getFields($is_constructor) {
     $fields = $this->_getFilterFields($is_constructor);
     $fields = array_merge($fields, $this->_getColumnFields($is_constructor));
     return $fields;
   }
 
-  function _getFilterFields($is_constructor) {
+  public function _getFilterFields($is_constructor) {
     $fields = $this->_filter_criteria_fields;
     return $this->_adjustPseudofield($fields, $is_constructor);
   }
 
-  function _getColumnFields($is_constructor) {
+  public function _getColumnFields($is_constructor) {
     $fields = $this->_column_criteria_fields;
     return $this->_adjustPseudofield($fields, $is_constructor);
   }
 
-  function _adjustPseudofield($filters, $is_constructor) {
-    foreach ($filters as &$filter){
+  public function _adjustPseudofield($filters, $is_constructor) {
+    foreach ($filters as &$filter) {
       if (array_key_exists('_force_pseudofield', $filter) && $filter['_force_pseudofield']) {
         $filter['pseudofield'] = TRUE;
       }
       else {
-        $filter['pseudofield'] = (bool)$is_constructor;
+        $filter['pseudofield'] = (bool) $is_constructor;
       }
     }
     return $filters;

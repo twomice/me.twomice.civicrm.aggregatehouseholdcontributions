@@ -16,8 +16,6 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
 
     $this->setBrowser('firefox');
     $this->setBrowserUrl($this->config['base_url']);
-
-
   }
 
   public function tearDown() {
@@ -170,13 +168,10 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     }
   }
 
-
-
-
   public function assertResults($test_name) {
     sleep($this->_sleepBeforeAssert);
     $this->assertArrayHasKey($test_name, $this->config['results'], "Expected results for test '$test_name' not found in \$this->config['results'].");
-    
+
     $expected = $this->config['results'][$test_name];
 
     // Assert row_count.
@@ -197,13 +192,18 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
       "largest",
     );
     foreach ($expected['rows'] as $row_id => $values) {
-      $total = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(2)"); // "total" column
-      $first = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(3)"); // "first" column
-      $last = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(4)"); // "last" column
-      $largest = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(5)"); // "largest" column
-
-      $name_full = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(1) a"); // link inside "display name" column
-      $name = substr($name_full, 0, 3) . '...' . substr($name_full, -3); // 'name' is obfuscated as [first three]...[last three]
+      // "total" column
+      $total = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(2)");
+      // "first" column
+      $first = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(3)");
+      // "last" column
+      $last = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(4)");
+      // "largest" column
+      $largest = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(5)");
+      // link inside "display name" column
+      $name_full = $this->getText("css=tr#crm-report_{$row_id} td:nth-child(1) a");
+      // 'name' is obfuscated as [first three]...[last three]
+      $name = substr($name_full, 0, 3) . '...' . substr($name_full, -3);
 
       foreach ($assert_row_values as $value_name) {
         $this->assertEquals($values[$value_name], $$value_name, "In row {$row_id}, {$value_name} is '{$$value_name}' but should be '{$values[$value_name]}'.");
@@ -224,7 +224,7 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->clickAndWait('_qf_aggregatehouseholdcontributions_submit');
     $this->assertResults(__FUNCTION__);
   }
-  
+
   public function testFilterFirstWithScopeEver() {
     $this->startReportSetup();
     $this->setFilterFirstValues();
@@ -478,6 +478,4 @@ class AggHouseContrib extends PHPUnit_Extensions_SeleniumTestCase {
     $this->assertResults(__FUNCTION__);
   }
 
-
 }
-

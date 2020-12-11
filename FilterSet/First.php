@@ -2,13 +2,12 @@
 
 class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet {
 
-  
-  function __construct() {
+  public function __construct() {
     $this->_name = 'first';
     parent::__construct();
   }
-  
-  function _buildFilterCriteriaFields() {
+
+  public function _buildFilterCriteriaFields() {
     parent::_buildFilterCriteriaFields();
     $this->_filter_criteria_fields['first_contribution_scope'] = array(
       'title' => E::ts('"First Contribution" filter scope'),
@@ -25,12 +24,10 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
     );
   }
 
-  function _buildFilterTablesForScopeEver($report) {
-    /*
-          'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-          'supporting_table_filter_fields' => '',
-          'primary_table_filter_fields' => 'ALL',
-     */
+  public function _buildFilterTablesForScopeEver($report) {
+    // 'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
+    // supporting_table_filter_fields' => '',
+    // 'primary_table_filter_fields' => 'ALL',
     $filter_set_fields = $this->_getFilterFields(FALSE);
     $this->_filterSetTableName_pre = $this->_obj->_temp_table_prefix . "scope_{$this->_name}_pre";
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
@@ -46,7 +43,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
           group by aggid
       ;
     ";
-    $this->_obj->_debugDsm($query, 'query 1 for filter set '. $this->_name);
+    $this->_obj->_debugDsm($query, 'query 1 for filter set ' . $this->_name);
     CRM_Core_DAO::executeQuery($query);
 
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
@@ -67,11 +64,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
             {$report->_where}
     ;
     ";
-    $this->_obj->_debugDsm($query, 'query 2 for filter set '. $this->_name);
+    $this->_obj->_debugDsm($query, 'query 2 for filter set ' . $this->_name);
     CRM_Core_DAO::executeQuery($query);
   }
 
-  function _buildFilterTablesForScopeDateRange($report) {
+  public function _buildFilterTablesForScopeDateRange($report) {
     $filter_set_fields = $this->_getFilterFields(FALSE);
 
     $report->_columns[$this->_obj->_tablename]['filters'] = array();
@@ -80,7 +77,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
     $report->_columns[$this->_obj->_tablename]['filters'] = $filter_set_fields;
     $report->_filterWhere();
     $temporary = $this->_obj->_debug_temp_table($this->_filterSetTableName);
-    $query =   "
+    $query = "
       CREATE $temporary TABLE {$this->_filterSetTableName} (INDEX (`aggid`))
       SELECT
         min(t.receive_date) as qualifier_first, t.aggid
@@ -91,18 +88,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
       {$report->_having}
       ;
     ";
-    $this->_obj->_debugDsm($query, 'query (only) for filter set '. $this->_name);
+    $this->_obj->_debugDsm($query, 'query (only) for filter set ' . $this->_name);
     CRM_Core_DAO::executeQuery($query);
   }
 
-  function _buildFilterTablesForScopeAmountRange($report) {
-  /*
-      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
-      'supporting_table_filter_fields' => 'ALLEXCEPT',
-      'primary_table_filter_fields' => array(
-        'first_contribution_amount',
-      ),
-   */
+  public function _buildFilterTablesForScopeAmountRange($report) {
+    //'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP,
+    //'supporting_table_filter_fields' => 'ALLEXCEPT',
+    //'primary_table_filter_fields' => array(
+    //'first_contribution_amount',
+    //),
     $filter_set_fields = $this->_getFilterFields(FALSE);
 
     $this->_filterSetTableName_pre = $this->_obj->_temp_table_prefix . "scope_{$this->_name}_pre";
@@ -136,14 +131,14 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
           group by aggid
       ;
     ";
-    $this->_obj->_debugDsm($query, 'query 1 for filter set '. $this->_name);
+    $this->_obj->_debugDsm($query, 'query 1 for filter set ' . $this->_name);
     CRM_Core_DAO::executeQuery($query);
 
-//      and create a temp table along these lines:
+    // and create a temp table along these lines:
     $field = $filter_set_fields['first_contribution_amount'];
     $field['pseudofield'] = FALSE;
     $report->_columns[$this->_obj->_tablename]['filters'] = array(
-      'first_contribution_amount' => $field
+      'first_contribution_amount' => $field,
     );
 
     $report->_filterWhere();
@@ -157,18 +152,16 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
           {$report->_where}
     ;
     ";
-    $this->_obj->_debugDsm($query, 'query 2 for filter set '. $this->_name);
+    $this->_obj->_debugDsm($query, 'query 2 for filter set ' . $this->_name);
 
     CRM_Core_DAO::executeQuery($query);
 
   }
 
-  function _buildMyColumnTables($report) {
-    /*
-      'qualifier_expression' => 'min(t.receive_date)',
-      'qualifier_join' => 'receive_date',
-      'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
-     */
+  public function _buildMyColumnTables($report) {
+    //'qualifier_expression' => 'min(t.receive_date)',
+    //'qualifier_join' => 'receive_date',
+    //'method' => CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED,
     $table_name_pre = "civireport_tmp_column_{$this->_name}_pre";
     $temporary = $this->_obj->_debug_temp_table($table_name_pre);
     $qualifier_column_name = "column_{$this->_name}";
@@ -199,5 +192,5 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_First extends
     $this->_obj->_debugDsm($query, "Table query for column: {$filter_set_name}");
     CRM_Core_DAO::executeQuery($query);
   }
- 
+
 }

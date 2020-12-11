@@ -2,21 +2,21 @@
 
 class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Any extends me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet {
 
-  function __construct() {
+  public function __construct() {
     $this->_name = 'any';
     parent::__construct();
   }
 
-  function _buildColumnCriteriaFields() {
-    return;
-  }
-  
-  function _buildFilterTables($object) {
+  public function _buildColumnCriteriaFields() {
     return;
   }
 
-  function _adjustPseudofield($filters) {
-    foreach ($filters as &$filter){
+  public function _buildFilterTables($object) {
+    return;
+  }
+
+  public function _adjustPseudofield($filters) {
+    foreach ($filters as &$filter) {
       if (array_key_exists('_force_pseudofield', $filter) && $filter['_force_pseudofield']) {
         $filter['pseudofield'] = TRUE;
       }
@@ -26,5 +26,5 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Any extends m
     }
     return $filters;
   }
-  
+
 }

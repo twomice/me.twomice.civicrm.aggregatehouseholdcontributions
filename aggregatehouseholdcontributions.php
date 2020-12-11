@@ -1,21 +1,23 @@
 <?php
 
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE', 0);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER', 1);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE', 2);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE', 3);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP', 1);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING', 2);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE', 1);
-define ('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED', 2);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_NONE', 0);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER', 1);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE', 2);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE', 3);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_GROUP', 1);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_METHOD_HAVING', 2);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_SINGLE', 1);
+define('CIVIREPORT_AGGREGATE_HOUSEHOLD_COLUMN_METHOD_JOINED', 2);
 
 class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form {
   var $_debug = FALSE;
   var $_tablename = 'tmp_aggregated_household_contributions';
   var $_temp_table_prefix = "civireport_tmp_";
   var $_supportedRelationshipTypes = array(
-    6, // Household member of/is
-    7, // Head of household for/is
+    // Household member of/is
+    6,
+    // Head of household for/is
+    7,
   );
   var $_filterSetNames = array(
     'total',
@@ -28,19 +30,19 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Array of tables that may be required by various filters and "Aggregate"
    * columns (e.g., '"Total contribution" column').
-   * @var <type>
    */
   var $_extraJoinTables = array();
 
-  function __construct() {
+  public function __construct() {
     // Add this extension's templates directory to Smarty's template path.
     $smarty = CRM_Core_Smarty::singleton();
-    $extension_root = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+    $extension_root = dirname(__FILE__) . DIRECTORY_SEPARATOR;
     $extension_templates_directory = $extension_root . 'templates';
-    if ( is_array( $smarty->template_dir ) ) {
-        array_unshift( $smarty->template_dir, $extension_templates_directory );
-    } else {
-        $smarty->template_dir = array( $extension_templates_directory, $smarty->template_dir );
+    if (is_array($smarty->template_dir)) {
+      array_unshift($smarty->template_dir, $extension_templates_directory);
+    }
+    else {
+      $smarty->template_dir = array($extension_templates_directory, $smarty->template_dir);
     }
 
     // Register this extension's auto-loader for loading classes.
@@ -194,7 +196,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Overrides parent::preProcess().
    */
-  function preProcess() {
+  public function preProcess() {
     parent::preProcess();
 
     // Add special filters for Total, Any, Largest, Last, First.
@@ -203,7 +205,6 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     $this->addElement('checkbox', 'is_filter_largest', E::ts('Apply "Largest Contribution" filter'));
     $this->addElement('checkbox', 'is_filter_last', E::ts('Apply "Last Contribution" filter'));
     $this->addElement('checkbox', 'is_filter_first', E::ts('Apply "First Contribution" filter'));
-
 
     // Add special fields for "Aggregate Column Values".
     $options = array();
@@ -262,7 +263,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Overrides parent::from().
    */
-  function from() {
+  public function from() {
     $this->_from = "
       FROM
         civicrm_contact {$this->_aliases['civicrm_contact']} {$this->_aclFrom}
@@ -329,7 +330,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * the unique ID of every aggregated household. This ensures each aggregated
    * household is listed only once, and that totals are grouped by household.
    */
-  function groupBy() {
+  public function groupBy() {
     parent::groupBy();
 
     if (empty($groupBys)) {
@@ -345,7 +346,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * Overrides parent::validate().
    * Enusre some display columns are selected.
    */
-  function validate() {
+  public function validate() {
     $ret = parent::validate();
     if ($ret !== FALSE) {
       if (empty($this->_submitValues['fields'])) {
@@ -359,7 +360,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Overrides parent::beginPostProcessCommon().
    */
-  function beginPostProcessCommon() {
+  public function beginPostProcessCommon() {
     parent::beginPostProcessCommon();
 
     // For each filterset, clear default filter params if the filter itself is
@@ -375,7 +376,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
           if (is_array($columns['filters'])) {
             foreach ($columns['filters'] as $fieldName => $field) {
               $field_prefix = substr($fieldName, 0, $prefixLength);
-                if ($field_prefix == $filterset_prefix) {
+              if ($field_prefix == $filterset_prefix) {
                 unset($this->_params["{$fieldName}_value"]);
                 unset($this->_params["{$fieldName}_op"]);
                 unset($this->_params["{$fieldName}_min"]);
@@ -393,9 +394,8 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     // Build the central table for this report.
     $this->_buildCentralReportTable();
 
-
     // Build any additional tables that may be required by enabled filtersets.
-    foreach($this->_filterSetNames as $filter_set_name) {
+    foreach ($this->_filterSetNames as $filter_set_name) {
       if ($this->_params["is_filter_{$filter_set_name}"]) {
         // If this filterset is enabled, build tables required by this filterset.
         $this->_buildFilterSetTempTable($filter_set_name);
@@ -408,7 +408,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Overrides parent::alterDisplay().
    */
-  function alterDisplay(&$rows) {
+  public function alterDisplay(&$rows) {
     // custom code to alter rows
     $entryFound = FALSE;
 
@@ -443,9 +443,8 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * Build and populate any tables that may be required by a given filterset.
    *
    * @param <type> $filter_set_name
-   * @return <type>
    */
-  function _buildFilterSetTempTable($filter_set_name) {
+  public function _buildFilterSetTempTable($filter_set_name) {
     $filter_set = $this->_getFilterSet($filter_set_name);
     $filter_set->_buildFilterTables($this);
   }
@@ -459,7 +458,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * @param <type> $table_name
    * @return string
    */
-  function _debug_temp_table($table_name) {
+  public function _debug_temp_table($table_name) {
     if ($this->_debug) {
       $query = "DROP TABLE IF EXISTS {$table_name}";
       CRM_Core_DAO::executeQuery($query);
@@ -474,7 +473,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Set up where and having clauses for filtersets.
    */
-  function _filterWhere() {
+  public function _filterWhere() {
     $this->_havingClauses = array();
     $this->_whereClauses = array();
     $this->where();
@@ -485,7 +484,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Build any tables that may be required by aggregate columns.
    */
-  function _buildColumnTempTable($filter_set_name) {
+  public function _buildColumnTempTable($filter_set_name) {
     $field_name = "{$filter_set_name}_contribution";
     $field = $this->_columns[$this->_tablename]['fields'][$field_name];
     // If this field was not selected for display, just return.
@@ -503,7 +502,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    *
    * @param <type> $statistics
    */
-  function filterStat(&$statistics) {
+  public function filterStat(&$statistics) {
     // Back-up columns array, since we're modifying it temporarily.
     $backup_columns = $this->_columns;
 
@@ -528,12 +527,12 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * Simply calls parent::buildQuery() and forwards the query SQL to our debug
    * logger.
    */
-  function buildQuery($applyLimit = TRUE) {
+  public function buildQuery($applyLimit = TRUE) {
     // Temporarily remove all filter params so they don't apply to the $where clause
     // in parent::buildQuery(). We've already applied filters in building the
     // various temp tables, so now we just want all the rows in $this->_tablename;
     // applying the filters again at this point will likely screen out some
-    // records that we want to keep.  The exception here is the "Any 
+    // records that we want to keep.  The exception here is the "Any
     // Contribution" filter, because there is no temp-table for that filter set;
     // so we'll not remove filter params if the param is named "any_*".
     $backup_params = $this->_params;
@@ -560,7 +559,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Debug logger. If $this->_debug is TRUE, send $var to dsm() with label $label.
    */
-  function _debugDsm($var, $label = NULL) {
+  public function _debugDsm($var, $label = NULL) {
     if ($this->_debug && function_exists('dsm')) {
       dsm($var, $label);
     }
@@ -571,7 +570,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * attributed to the aggregated household.
    * This is the central table in the report output. It's named $this->_tablename.
    */
-  function _buildCentralReportTable() {
+  public function _buildCentralReportTable() {
     // Build the where clauses for this query.
     $whereClauses = array();
 
@@ -591,7 +590,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     }
 
     if (!empty($whereClauses)) {
-      $where = "WHERE ". implode(' AND ', $whereClauses);
+      $where = "WHERE " . implode(' AND ', $whereClauses);
     }
     else {
       $where = 'WHERE (1)';
@@ -692,7 +691,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Register this extension's auto-loader for classes.
    */
-  function _registerAutoloader() {
+  public function _registerAutoloader() {
     if ($this->_autoloader_registered) {
       return;
     }
@@ -703,7 +702,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   /**
    * Auto-loader for classes.
    */
-  function _loadClass($class) {
+  public function _loadClass($class) {
     $class_prefix = 'me_twomice_civicrm_aggregatehouseholdcontributions_';
     $class_prefix_length = strlen($class_prefix);
     if (
@@ -713,20 +712,20 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
       // (in a future version, maybe)
       FALSE === strpos($class, '\\')
     ) {
-      $path = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
+      $path = dirname(__FILE__) . DIRECTORY_SEPARATOR;
       $file = strtr(substr($class, $class_prefix_length), '_', '/') . '.php';
-      require_once ($path . $file);
+      require_once $path . $file;
     }
   }
 
   /**
-   * For a given filterSet name, create the filterSet object if necessary, 
+   * For a given filterSet name, create the filterSet object if necessary,
    * and return it.
    */
-  function _getFilterSet($filter_set_name) {
+  public function _getFilterSet($filter_set_name) {
     static $filter_sets_cache = array();
     if (!array_key_exists($filter_set_name, $filter_sets_cache)) {
-      $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
+      $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_" . ucfirst($filter_set_name);
       $filter_sets_cache[$filter_set_name] = new $filter_set_class_name;
     }
     return $filter_sets_cache[$filter_set_name];
