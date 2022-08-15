@@ -39,7 +39,7 @@
       Options for these columns will be displayed here when the column is selected
       for display under the "Columns" tab.
     </p>
-</div>
+  </div>
   <h3 id="set-aggregate-column-filters-header">Determine Aggregate Column Values</h3>
   <div id="set-aggregate-column-filters" class="civireport-criteria">
   </div>
