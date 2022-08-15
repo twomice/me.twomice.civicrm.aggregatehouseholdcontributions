@@ -1,6 +1,5 @@
-console.log('aggregatehouseholdcontributions.js');
-
 CRM.$(function($) {
+
   filterSets = [
     'total',
     'first',
@@ -8,13 +7,8 @@ CRM.$(function($) {
     'largest',
     'any'
   ];
-  $('#set-filters').after('\
-    <h3 id="set-aggregate-column-filters-header">Determine Aggregate Column Values</h3>\
-    <div id="set-aggregate-column-filters" class="civireport-criteria">\
-    </div>\
-  ');
 
-  $('div#report-tab-set-filters table.report-layout').attr('id', 'set-filters-original');
+  $('div#report-tab-set-filters input#total_contribution_amount_value').closest('table').attr('id', 'set-filters-original');
   for (i in filterSets) {
 
     // Check how many column-filter fields exist for this set. If there are none,
