@@ -259,6 +259,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     CRM_Core_Resources::singleton()->addStyle('form.me_twomice_civicrm_aggregatehouseholdcontributions > table.form-layout-compressed:first-of-type {display: none;}', 0, 'html-header');
   }
 
+  public function buildQuickForm() {
+    CRM_Core_Resources::singleton()->addScriptFile('me.twomice.civicrm.aggregatehouseholdcontributions', 'js/aggregatehouseholdcontributions.js');
+    return parent::buildQuickForm();
+  }
+
   /**
    * Overrides parent::from().
    */
