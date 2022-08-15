@@ -15,7 +15,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Any extends m
     return;
   }
 
-  function _adjustPseudofield($filters) {
+  function _adjustPseudofield($filters, $is_constructor) {
     foreach ($filters as &$filter){
       if (array_key_exists('_force_pseudofield', $filter) && $filter['_force_pseudofield']) {
         $filter['pseudofield'] = TRUE;
