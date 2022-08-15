@@ -1,5 +1,104 @@
 CRM.$(function($) {
 
+  /**
+   * Toggle display of the filter fields for the changed checkbox.
+   */
+  function aggregatedHouseholds_toggleColumnFilterVisibility(event) {
+    var el = $(this);
+    var type = el.attr('type')
+
+    var filterSetName = event.data.setName;
+
+    var tbody = el.closest('table').find('tbody');
+    if ((type == 'checkbox' || el.val() == 2) && el.is(':checked')) {
+      tbody.show();
+    }
+    else {
+      tbody.hide();
+    }
+  }
+
+  /**
+   * Toggle display of the "Copy Settings from Filter" button for the changed checkbox.
+   */
+  function aggregatedHouseholds_toggleColumnFilterCopySettingsButton(event) {
+    var el = $(this);
+
+    var filterSetName = event.data.setName;
+    var copyButtonTr = $('button#copy_settings_from_filter_' + filterSetName).closest('tr')
+
+    var tbody = el.closest('table').find('tbody');
+    if (el.is(':checked')) {
+      copyButtonTr.show();
+    }
+    else {
+      copyButtonTr.hide();
+    }
+  }
+
+  /**
+   * Copy settings from filter to aggregate column display settings, for the
+   * setName defined in event.data.setName.
+   */
+  function aggregatedHouseholds_copy_filter_settings(event) {
+    setName = event.data.setName;
+    // Copy values for all select elements.
+    $('select[id^="' + setName + '_contribution_"]').each(function(idx, el){
+      var column_field_id = 'column_'+ el.id
+      var selector = 'select#' + column_field_id
+      $(selector).val($(el).val()).change();
+    })
+
+    // Copy values for all input elements.
+    $('input[id^="' + setName + '_contribution_"]').each(function(idx, el){
+      var column_field_id = 'column_'+ el.id
+      var selector = 'input#' + column_field_id
+      $(selector).val($(el).val()).change();
+    })
+
+    // Specifically set date_from and date_to (these are datepicker fields which
+    // have dynamic IDs, so we can determine the aggregate-column-field ID just
+    // by prepending 'column_' to the filter field ID.
+    var from_date = $('input[id^="' + setName + '_contribution_date_from_display_"]').val()
+    $('input[id^="column_' + setName + '_contribution_date_from_display_"]').val(from_date)
+    var to_date = $('input[id^="' + setName + '_contribution_date_to_display_"]').val()
+    $('input[id^="column_' + setName + '_contribution_date_to_display_"]').val(to_date)
+
+    // Ensure the click event doesn't trigger its default behavior.
+    event.preventDefault();
+  }
+
+  function aggregatedHouseholds_toggleColumnFilterAvailability(event) {
+    var el = $(this);
+    var type = el.attr('type')
+
+    var filterSetName = event.data.setName;
+
+    var table = $('table#set-aggregate-column-filters-' + filterSetName);
+    if (type == 'checkbox' && el.is(':checked')) {
+      table.addClass('aggregate-households-visible');
+      table.show();
+    }
+    else {
+      table.removeClass('aggregate-households-visible');
+      table.hide();
+    }
+
+    var count = $('div#set-aggregate-column-filters table.aggregate-households-visible').length
+    if(count > 0) {
+      $('h3#set-aggregate-column-filters-header').show();
+      $('div#set-aggregate-column-filters-noop-help').hide();
+    }
+    else {
+      $('h3#set-aggregate-column-filters-header').hide();
+      $('div#set-aggregate-column-filters-noop-help').show();
+    }
+  }
+
+
+  ///////////////////////////////////////////
+  // Continue with on-load behaviors:
+
   filterSets = [
     'total',
     'first',
@@ -64,100 +163,3 @@ CRM.$(function($) {
     $('select[name^="'+ filterSets[i] +'_contribution_"]').closest('tr').appendTo('table#set-filters-'+ filterSets[i] +' tbody');
   }
 });
-
-function aggregatedHouseholds_toggleColumnFilterAvailability(event) {
-  var el = cj(this);
-  var type = el.attr('type')
-
-  var filterSetName = event.data.setName;
-
-  var table = cj('table#set-aggregate-column-filters-' + filterSetName);
-  if (type == 'checkbox' && el.is(':checked')) {
-    table.addClass('aggregate-households-visible');
-    table.show();
-  }
-  else {
-    table.removeClass('aggregate-households-visible');
-    table.hide();
-  }
-
-  var count = cj('div#set-aggregate-column-filters table.aggregate-households-visible').length
-  if(count > 0) {
-    cj('h3#set-aggregate-column-filters-header').show();
-    cj('div#set-aggregate-column-filters-noop-help').hide();
-  }
-  else {
-    cj('h3#set-aggregate-column-filters-header').hide();
-    cj('div#set-aggregate-column-filters-noop-help').show();
-  }
-}
-
-
-/**
- * Toggle display of the filter fields for the changed checkbox.
- */
-function aggregatedHouseholds_toggleColumnFilterVisibility(event) {
-  var el = cj(this);
-  var type = el.attr('type')
-
-  var filterSetName = event.data.setName;
-
-  var tbody = el.closest('table').find('tbody');
-  if ((type == 'checkbox' || el.val() == 2) && el.is(':checked')) {
-    tbody.show();
-  }
-  else {
-    tbody.hide();
-  }
-
-}
-
-/**
- * Toggle display of the "Copy Settings from Filter" button for the changed checkbox.
- */
-function aggregatedHouseholds_toggleColumnFilterCopySettingsButton(event) {
-  var el = cj(this);
-
-  var filterSetName = event.data.setName;
-  var copyButtonTr = cj('button#copy_settings_from_filter_' + filterSetName).closest('tr')
-
-  var tbody = el.closest('table').find('tbody');
-  if (el.is(':checked')) {
-    copyButtonTr.show();
-  }
-  else {
-    copyButtonTr.hide();
-  }
-}
-
-/**
- * Copy settings from filter to aggregate column display settings, for the
- * setName defined in event.data.setName.
- */
-function aggregatedHouseholds_copy_filter_settings(event) {
-  setName = event.data.setName;
-  // Copy values for all select elements.
-  cj('select[id^="' + setName + '_contribution_"]').each(function(idx, el){
-    var column_field_id = 'column_'+ el.id
-    var selector = 'select#' + column_field_id
-    cj(selector).val(cj(el).val()).change();
-  })
-
-  // Copy values for all input elements.
-  cj('input[id^="' + setName + '_contribution_"]').each(function(idx, el){
-    var column_field_id = 'column_'+ el.id
-    var selector = 'input#' + column_field_id
-    cj(selector).val(cj(el).val()).change();
-  })
-
-  // Specifically set date_from and date_to (these are datepicker fields which
-  // have dynamic IDs, so we can determine the aggregate-column-field ID just
-  // by prepending 'column_' to the filter field ID.
-  var from_date = cj('input[id^="' + setName + '_contribution_date_from_display_"]').val()
-  cj('input[id^="column_' + setName + '_contribution_date_from_display_"]').val(from_date)
-  var to_date = cj('input[id^="' + setName + '_contribution_date_to_display_"]').val()
-  cj('input[id^="column_' + setName + '_contribution_date_to_display_"]').val(to_date)
-
-  // Ensure the click event doesn't trigger its default behavior.
-  event.preventDefault();
-}
