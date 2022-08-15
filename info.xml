@@ -8,15 +8,14 @@
     <author>Allen Shaw</author>
     <email>allen@joineryhq.com</email>
   </maintainer>
-  <releaseDate>2016-06-22</releaseDate>
-  <version>1.2</version>
+  <releaseDate>2022-08-15</releaseDate>
+  <version>2.0</version>
   <urls>
     <url desc="Documentation">https://github.com/twomice/me.twomice.civicrm.aggregatehouseholdcontributions</url>
     <url desc="Support">https://github.com/twomice/me.twomice.civicrm.aggregatehouseholdcontributions/issues</url>
   </urls>
   <compatibility>
-    <ver>4.4</ver>
-    <ver>4.6</ver>
+    <ver>5.0</ver>
   </compatibility>
   <comments>Extension development sponsored by Donate Life Northwest (http://donatelifenw.org).</comments>
   <typeInfo>
