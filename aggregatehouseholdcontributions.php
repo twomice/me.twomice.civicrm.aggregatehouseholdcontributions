@@ -24,6 +24,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     'last',
     'largest',
   );
+  var $_autoloader_registered = FALSE;
 
   /**
    * Array of tables that may be required by various filters and "Aggregate"
@@ -370,14 +371,14 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     // For each filterset, clear default filter params if the filter itself is
     // not used.
     foreach ($this->_filterSetNames as $filter_set_name) {
-      if (!$this->_params["is_filter_{$filter_set_name}"]) {
+      if (!($this->_params["is_filter_{$filter_set_name}"] ?? NULL)) {
         // Clear default filter params if the filter itself is not used.
         $filterset_prefix = "{$filter_set_name}_contribution_";
         $prefixLength = strlen($filterset_prefix);
         // Loop through all the filters defined in $this->_columns, and unset
         // all params related to that filter.
         foreach ($this->_columns as $tableName => $columns) {
-          if (is_array($columns['filters'])) {
+          if (is_array($columns['filters'] ?? NULL)) {
             foreach ($columns['filters'] as $fieldName => $field) {
               $field_prefix = substr($fieldName, 0, $prefixLength);
                 if ($field_prefix == $filterset_prefix) {
@@ -401,7 +402,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     // Build any additional tables that may be required by enabled filtersets.
     foreach($this->_filterSetNames as $filter_set_name) {
-      if ($this->_params["is_filter_{$filter_set_name}"]) {
+      if ($this->_params["is_filter_{$filter_set_name}"] ?? NULL) {
         // If this filterset is enabled, build tables required by this filterset.
         $this->_buildFilterSetTempTable($filter_set_name);
       }
@@ -492,9 +493,9 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    */
   function _buildColumnTempTable($filter_set_name) {
     $field_name = "{$filter_set_name}_contribution";
-    $field = $this->_columns[$this->_tablename]['fields'][$field_name];
+    $field = ($this->_columns[$this->_tablename]['fields'][$field_name] ?? NULL);
     // If this field was not selected for display, just return.
-    if (!$this->_params['fields'][$field_name]) {
+    if (!($this->_params['fields'][$field_name] ?? NULL)) {
       return;
     }
 
@@ -538,7 +539,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     // in parent::buildQuery(). We've already applied filters in building the
     // various temp tables, so now we just want all the rows in $this->_tablename;
     // applying the filters again at this point will likely screen out some
-    // records that we want to keep.  The exception here is the "Any 
+    // records that we want to keep.  The exception here is the "Any
     // Contribution" filter, because there is no temp-table for that filter set;
     // so we'll not remove filter params if the param is named "any_*".
     $backup_params = $this->_params;
@@ -725,7 +726,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   }
 
   /**
-   * For a given filterSet name, create the filterSet object if necessary, 
+   * For a given filterSet name, create the filterSet object if necessary,
    * and return it.
    */
   function _getFilterSet($filter_set_name) {

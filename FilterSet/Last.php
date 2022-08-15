@@ -187,7 +187,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
       {$report->_where}
       ;
     ";
-    $this->_obj->_debugDsm($query, "Table query for column: {$filter_set_name}");
+    $this->_obj->_debugDsm($query, "Table query for column: {$this->_name}");
     CRM_Core_DAO::executeQuery($query);
   }
 

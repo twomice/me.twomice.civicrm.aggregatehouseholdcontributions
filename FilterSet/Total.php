@@ -16,7 +16,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
       'type' => CRM_Utils_Type::T_MONEY,
       'dbAlias' => 'sum(total_amount)',
       'having' => TRUE,
-      'grouping' => $grouping,
+      'grouping' => NULL,
 //      'pseudofield' => $pseudofield,
     );
   }

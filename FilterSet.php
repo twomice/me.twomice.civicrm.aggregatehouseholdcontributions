@@ -142,7 +142,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
     }
 
     // Get scope for this filter from params.
-    $selected_scope = $obj->_params[$this->_name . '_contribution_scope_value'];
+    $selected_scope = ($obj->_params[$this->_name . '_contribution_scope_value'] ?? NULL);
     switch($selected_scope) {
       case CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER:
         $this->_buildFilterTablesForScopeEver($report);
@@ -199,7 +199,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet extends CRM_R
 
     // If this filterset has a "*_date" aggregate field (e.g., first_contribution_date),
     // do the same for the *_date field as for the base (amount) field.
-    if ($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date']) {
+    if (($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date'] ?? NULL)) {
       $field = $obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date'];
       $field['dbAlias'] = $this->_columnFieldName . '_date';
       unset($obj->_columns[$obj->_tablename]['fields'][$this->_columnFieldName . '_date']);
