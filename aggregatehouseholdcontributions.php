@@ -233,7 +233,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     // Place all these new fields into the template in 'beginHookFormElements'
     $tpl = CRM_Core_Smarty::singleton();
-    $bhfe = $tpl->get_template_vars('beginHookFormElements');
+    $bhfe = $tpl->getTemplateVars('beginHookFormElements');
     if (!$bhfe) {
       $bhfe = array();
     }
