@@ -583,15 +583,15 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
     // Support tag and group filters.
     $field = $this->_columns["civicrm_tag"]['filters']['tagid'];
-    $value = CRM_Utils_Array::value("tagid_value", $this->_params);
-    $op = CRM_Utils_Array::value("tagid_op", $this->_params);
+    $value = $this->_params["tagid_value"] ?? NULL;
+    $op = $this->_params["tagid_op"] ?? NULL;
     if ($value) {
       $whereClauses[] = $this->whereTagClause($field, $value, $op);
     }
 
     $field = $this->_columns["civicrm_group"]['filters']['gid'];
-    $value = CRM_Utils_Array::value("gid_value", $this->_params);
-    $op = CRM_Utils_Array::value("gid_op", $this->_params);
+    $value = $this->_params["gid_value"] ?? NULL;
+    $op = $this->_params["gid_op"] ?? NULL;
     if ($value) {
       $whereClauses[] = $this->whereGroupClause($field, $value, $op);
     }
