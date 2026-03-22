@@ -117,3 +117,9 @@ As described above, the Columns criteria include options to display typical Civi
 1. **"Largest contribution" column** provides the same options as described for **"Total Contribution" column**. You may configure these options to cause the "Largest Contribution Amount" column to display either:
     * The amount of the _largest contribution ever_ by amount, without regard to any other criteria, OR 
     * Use custom settings either copied from the "Largest Contribution" filter or in the criteria here. 
+
+## Support
+
+Support for this package is handled under Joinery's ["As-Is Support" policy](https://joineryhq.com/software-support-levels#as-is-support).
+
+Public issue queue for this package: https://github.com/twomice/me.twomice.civicrm.aggregatehouseholdcontributions/issues
