@@ -10,18 +10,18 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
 
   function _buildFilterCriteriaFields() {
     parent::_buildFilterCriteriaFields();
-    $this->_filter_criteria_fields['last_contribution_scope'] = array(
+    $this->_filter_criteria_fields['last_contribution_scope'] = [
       'title' => ts('"Last Contribution" filter scope'),
       'operatorType' => CRM_Report_Form::OP_SELECT,
       'type' => CRM_Utils_Type::T_INT,
-      'options'      => array(
+      'options'      => [
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_EVER => ts('Last contribution ever meets these criteria'),
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_DATE_RANGE => ts('Last contribution meeting these criteria was within this date range'),
         CIVIREPORT_AGGREGATE_HOUSEHOLD_FILTERSET_SCOPE_AMOUNT_RANGE => ts('Last contribution meeting these criteria was within this amount range'),
-      ),
+      ],
       'grouping' => 'last-filters',
       '_force_pseudofield' => TRUE,
-    );
+    ];
   }
 
   function _buildFilterTablesForScopeEver($report) {
@@ -32,7 +32,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
      */
     $filter_set_fields = $this->_getFilterFields(FALSE);
     $this->_filterSetTableName_pre = $this->_obj->_temp_table_prefix . "scope_{$this->_name}_pre";
-    $report->_columns[$this->_obj->_tablename]['filters'] = array();
+    $report->_columns[$this->_obj->_tablename]['filters'] = [];
     $report->_filterWhere();
     $temporary = $this->_obj->_debug_temp_table($this->_filterSetTableName_pre);
     $query = "
@@ -48,7 +48,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
     $this->_obj->_debugDsm($query, 'query 1 for filter set '. $this->_name);
     CRM_Core_DAO::executeQuery($query);
 
-    $report->_columns[$this->_obj->_tablename]['filters'] = array();
+    $report->_columns[$this->_obj->_tablename]['filters'] = [];
     foreach ($filter_set_fields as $field_name => $field) {
       if ($field_name != 'last_contribution_scope') {
         $field['pseudofield'] = FALSE;
@@ -73,7 +73,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
   function _buildFilterTablesForScopeDateRange($report) {
     $filter_set_fields = $this->_getFilterFields(FALSE);
 
-    $report->_columns[$this->_obj->_tablename]['filters'] = array();
+    $report->_columns[$this->_obj->_tablename]['filters'] = [];
     $filter_set_fields['last_contribution_date']['having'] = TRUE;
     $filter_set_fields['last_contribution_date']['dbAlias'] = 'qualifier_last';
     $report->_columns[$this->_obj->_tablename]['filters'] = $filter_set_fields;
@@ -99,12 +99,12 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
 
     $this->_filterSetTableName_pre = $this->_obj->_temp_table_prefix . "scope_{$this->_name}_pre";
 
-    $report->_columns[$this->_obj->_tablename]['filters'] = array();
+    $report->_columns[$this->_obj->_tablename]['filters'] = [];
 
     $supporting_table_filter_fields = 'ALLEXCEPT';
-    $primary_table_filter_fields = array(
+    $primary_table_filter_fields = [
       'last_contribution_amount',
-    );
+    ];
 
     foreach ($filter_set_fields as $field_name => $field) {
       if (
@@ -134,9 +134,9 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Last extends 
 //      and create a temp table along these lines:
     $field = $filter_set_fields['last_contribution_amount'];
     $field['pseudofield'] = FALSE;
-    $report->_columns[$this->_obj->_tablename]['filters'] = array(
+    $report->_columns[$this->_obj->_tablename]['filters'] = [
       'last_contribution_amount' => $field
-    );
+    ];
 
     $report->_filterWhere();
     $temporary = $this->_obj->_debug_temp_table($this->_filterSetTableName);
