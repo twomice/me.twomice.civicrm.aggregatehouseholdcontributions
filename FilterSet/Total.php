@@ -9,7 +9,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
   }
   function _buildFilterCriteriaFields() {
     parent::_buildFilterCriteriaFields();
-    $this->_filter_criteria_fields['total_contribution_total'] = array(
+    $this->_filter_criteria_fields['total_contribution_total'] = [
       '_is_filter_criteria' => TRUE,
       '_is_column_criteria' => FALSE,
       'title' => ts('Total contribution: total'),
@@ -18,11 +18,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_Total extends
       'having' => TRUE,
       'grouping' => NULL,
 //      'pseudofield' => $pseudofield,
-    );
+    ];
   }
   
   function _buildFilterTablesForScopeDefault($report) {
-    $report->_columns[$this->_obj->_tablename]['filters'] = array();
+    $report->_columns[$this->_obj->_tablename]['filters'] = [];
 
     $filter_set_fields = $this->_getFilterFields(FALSE);
     $filter_set_fields['total_contribution_total']['having'] = TRUE;

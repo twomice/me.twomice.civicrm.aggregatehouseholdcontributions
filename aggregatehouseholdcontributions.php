@@ -13,17 +13,17 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
   var $_debug = FALSE;
   var $_tablename = 'tmp_aggregated_household_contributions';
   var $_temp_table_prefix = "civireport_tmp_";
-  var $_supportedRelationshipTypes = array(
+  var $_supportedRelationshipTypes = [
     6, // Household member of/is
     7, // Head of household for/is
-  );
-  var $_filterSetNames = array(
+  ];
+  var $_filterSetNames = [
     'total',
     'any',
     'first',
     'last',
     'largest',
-  );
+  ];
   var $_autoloader_registered = FALSE;
 
   /**
@@ -31,7 +31,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * columns (e.g., '"Total contribution" column').
    * @var <type>
    */
-  var $_extraJoinTables = array();
+  var $_extraJoinTables = [];
 
   function __construct() {
     // Add this extension's templates directory to Smarty's template path.
@@ -41,139 +41,139 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     if ( is_array( $smarty->template_dir ) ) {
         array_unshift( $smarty->template_dir, $extension_templates_directory );
     } else {
-        $smarty->template_dir = array( $extension_templates_directory, $smarty->template_dir );
+        $smarty->template_dir = [ $extension_templates_directory, $smarty->template_dir ];
     }
 
     // Register this extension's auto-loader for loading classes.
     $this->_registerAutoloader();
 
-    $this->_columns = array(
-      'civicrm_contact' => array(
+    $this->_columns = [
+      'civicrm_contact' => [
         'dao' => 'CRM_Contact_DAO_Contact',
         'grouping' => 'contact-fields',
-        'fields' => array(
-          'first_name' => array(
+        'fields' => [
+          'first_name' => [
             'title' => ts('First Name'),
-          ),
-          'last_name' => array(
+          ],
+          'last_name' => [
             'title' => ts('Last Name'),
-          ),
-          'display_name' => array(
+          ],
+          'display_name' => [
             'title' => ts('Display Name'),
-          ),
-          'sort_name' => array(
+          ],
+          'sort_name' => [
             'title' => ts('Sort Name'),
-          ),
-          'contact_type' => array(
+          ],
+          'contact_type' => [
             'title' => ts('Contact Type'),
-          ),
-          'prefix_id' => array(
+          ],
+          'prefix_id' => [
             'title' => ts('Prefix'),
-          ),
-          'suffix_id' => array(
+          ],
+          'suffix_id' => [
             'title' => ts('Suffix'),
-          ),
-          'external_identifier' => array(
+          ],
+          'external_identifier' => [
             'title' => ts('External ID'),
-          ),
-          'is_deceased' => array(
+          ],
+          'is_deceased' => [
             'dbAlias' => "if(is_deceased, 'Yes', 'No')",
-          ),
-          'source' => array(
+          ],
+          'source' => [
             'title' => ts('Source'),
-          ),
-          'id' => array(
+          ],
+          'id' => [
             'required' => TRUE,
             'no_display' => TRUE,
-          ),
-        ),
-      ),
-      'civicrm_email' => array(
+          ],
+        ],
+      ],
+      'civicrm_email' => [
         'dao' => 'CRM_Core_DAO_Email',
         'grouping' => 'contact-fields',
-        'fields' => array(
-          'email' => array(
+        'fields' => [
+          'email' => [
             'title' => ts('Email'),
             'no_repeat' => TRUE,
-          ),
-        ),
-      ),
-      'civicrm_address' => array(
+          ],
+        ],
+      ],
+      'civicrm_address' => [
         'dao' => 'CRM_Core_DAO_Address',
         'grouping' => 'contact-fields',
-        'fields' => array(
+        'fields' => [
           'street_address' => NULL,
           'city' => NULL,
           'postal_code' => NULL,
-        ),
-      ),
-      'civicrm_state_province' => array(
+        ],
+      ],
+      'civicrm_state_province' => [
         'dao' => 'CRM_Core_DAO_StateProvince',
         'grouping' => 'contact-fields',
         'alias' => 'state',
-        'fields' => array(
-          'state_name' => array(
+        'fields' => [
+          'state_name' => [
             'title' => ts('State/Province'),
             'dbAlias' => 'state_civireport.name',
-          ),
-        ),
-      ),
-      'civicrm_country' => array(
+          ],
+        ],
+      ],
+      'civicrm_country' => [
         'dao' => 'CRM_Core_DAO_Country',
         'grouping' => 'contact-fields',
         'alias' => 'country',
-        'fields' => array(
-          'country_name' => array(
+        'fields' => [
+          'country_name' => [
             'title' => ts('Country'),
             'dbAlias' => 'country_civireport.name',
-          ),
-        ),
-      ),
-      'civicrm_phone' => array(
+          ],
+        ],
+      ],
+      'civicrm_phone' => [
         'dao' => 'CRM_Core_DAO_Phone',
         'grouping' => 'contact-fields',
-        'fields' => array(
+        'fields' => [
           'phone' => NULL,
-          'phone_ext' => array(
+          'phone_ext' => [
             'title' => ts('Phone Extension'),
-          ),
-        ),
-      ),
+          ],
+        ],
+      ],
 
       // Add options to filter the values of the aggregated amount columns.
       // These are all calculated using temporary tables, so dbAlias is never
       // actually used.
-      $this->_tablename => array(
+      $this->_tablename => [
         'grouping' => 'aggregate-fields',
-        'fields' => array(
-          'first_contribution' => array(
+        'fields' => [
+          'first_contribution' => [
             'title' => ts('First contribution amount'),
             'dbAlias' => 'CALCULATE',
-          ),
-          'last_contribution' => array(
+          ],
+          'last_contribution' => [
             'title' => ts('Last contribution amount'),
             'dbAlias' => 'CALCULATE',
-          ),
-          'largest_contribution' => array(
+          ],
+          'largest_contribution' => [
             'title' => ts('Largest contribution amount'),
             'dbAlias' => 'CALCULATE',
-          ),
-          'total_contribution' => array(
+          ],
+          'total_contribution' => [
             'title' => ts('Total contribution'),
             'dbAlias' => 'CALCULATE',
-          ),
-          'first_contribution_date' => array(
+          ],
+          'first_contribution_date' => [
             'title' => ts('First contribution date'),
             'dbAlias' => 'CALCULATE',
-          ),
-          'last_contribution_date' => array(
+          ],
+          'last_contribution_date' => [
             'title' => ts('Last contribution date'),
             'dbAlias' => 'CALCULATE',
-          ),
-        ),
-        'filters' => array(),
-      ),
-    );
+          ],
+        ],
+        'filters' => [],
+      ],
+    ];
 
     // Add the fields provided by each filterSet to _columns.
     foreach ($this->_filterSetNames as $filter_set_name) {
@@ -207,35 +207,35 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
 
 
     // Add special fields for "Aggregate Column Values".
-    $options = array();
+    $options = [];
     $options[] = $this->createElement('radio', NULL, NULL, ts('First contribution ever'), 1);
     $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
     $this->addGroup($options, 'first_contribution_column_filter', ts('"First contribution" column'));
-    $this->setDefaults(array('first_contribution_column_filter' => 1));
+    $this->setDefaults(['first_contribution_column_filter' => 1]);
 
-    $options = array();
+    $options = [];
     $options[] = $this->createElement('radio', NULL, NULL, ts('Last contribution ever'), 1);
     $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
     $this->addGroup($options, 'last_contribution_column_filter', ts('"Last contribution" column'));
-    $this->setDefaults(array('last_contribution_column_filter' => 1));
+    $this->setDefaults(['last_contribution_column_filter' => 1]);
 
-    $options = array();
+    $options = [];
     $options[] = $this->createElement('radio', NULL, NULL, ts('Largest contribution ever'), 1);
     $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
     $this->addGroup($options, 'largest_contribution_column_filter', ts('"Largest contribution" column'));
-    $this->setDefaults(array('largest_contribution_column_filter' => 1));
+    $this->setDefaults(['largest_contribution_column_filter' => 1]);
 
-    $options = array();
+    $options = [];
     $options[] = $this->createElement('radio', NULL, NULL, ts('Total of all contributions ever'), 1);
     $options[] = $this->createElement('radio', NULL, NULL, ts('Use custom settings'), 2);
     $this->addGroup($options, 'total_contribution_column_filter', ts('"Total contribution" column'));
-    $this->setDefaults(array('total_contribution_column_filter' => 1));
+    $this->setDefaults(['total_contribution_column_filter' => 1]);
 
     // Place all these new fields into the template in 'beginHookFormElements'
     $tpl = CRM_Core_Smarty::singleton();
     $bhfe = $tpl->getTemplateVars('beginHookFormElements');
     if (!$bhfe) {
-      $bhfe = array();
+      $bhfe = [];
     }
     $bhfe[] = 'first_contribution_column_filter';
     $bhfe[] = 'last_contribution_column_filter';
@@ -249,11 +249,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     $this->assign('beginHookFormElements', $bhfe);
 
     // Add the AggregateColumns tab.
-    $this->tabs['AggregateColumns'] = array(
+    $this->tabs['AggregateColumns'] = [
       'title' => ts('Aggregate Columns'),
       'tpl' => 'AggregateColumns',
       'div_label' => 'AggregateColumns',
-    );
+    ];
 
     // Hide the "beginHookFormElements" table (which is unfornately not given
     // and ID or other easy css selectors.
@@ -481,11 +481,11 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * Set up where and having clauses for filtersets.
    */
   function _filterWhere() {
-    $this->_havingClauses = array();
-    $this->_whereClauses = array();
+    $this->_havingClauses = [];
+    $this->_whereClauses = [];
     $this->where();
-    $this->_havingClauses = array();
-    $this->_whereClauses = array();
+    $this->_havingClauses = [];
+    $this->_whereClauses = [];
   }
 
   /**
@@ -579,7 +579,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    */
   function _buildCentralReportTable() {
     // Build the where clauses for this query.
-    $whereClauses = array();
+    $whereClauses = [];
 
     // Support tag and group filters.
     $field = $this->_columns["civicrm_tag"]['filters']['tagid'];
@@ -702,7 +702,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
     if ($this->_autoloader_registered) {
       return;
     }
-    spl_autoload_register(array($this, '_loadClass'), TRUE);
+    spl_autoload_register([$this, '_loadClass'], TRUE);
     $this->_autoloader_registered = TRUE;
   }
 
@@ -730,7 +730,7 @@ class me_twomice_civicrm_aggregatehouseholdcontributions extends CRM_Report_Form
    * and return it.
    */
   function _getFilterSet($filter_set_name) {
-    static $filter_sets_cache = array();
+    static $filter_sets_cache = [];
     if (!array_key_exists($filter_set_name, $filter_sets_cache)) {
       $filter_set_class_name = "me_twomice_civicrm_aggregatehouseholdcontributions_FilterSet_". ucfirst($filter_set_name);
       $filter_sets_cache[$filter_set_name] = new $filter_set_class_name;
